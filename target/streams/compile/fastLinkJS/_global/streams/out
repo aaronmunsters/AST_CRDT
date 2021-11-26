@@ -1,0 +1,22 @@
+[0m[[0m[0minfo[0m] [0m[0mFast optimizing /home/aaron/Documents/VUB/2MA/ccbd/ASSIGNMENTS/CRDT_AST/target/scala-2.13/scala-js-tutorial-fastopt[0m
+[0m[[0m[0mdebug[0m] [0m[0mLinker: Compute reachability: 15632 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mLinker: Assemble LinkedClasses: 2362 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mLinker: 41868 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mOptimizer: Batch mode: false[0m
+[0m[[0m[0mdebug[0m] [0m[0mOptimizer: Incremental part: 10619 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mOptimizer: Optimizing 5 methods.[0m
+[0m[[0m[0mdebug[0m] [0m[0mOptimizer: Optimizer part: 1333 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mOptimizer: 13280 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mRefiner: Compute reachability: 6414 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mRefiner: Assemble LinkedClasses: 499 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mRefiner: 7615 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mModule Splitter: Calculate Dependency Info: 107 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mModule Splitter: Analyze Modules: 59 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mModule Splitter: Assemble Modules: 272 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mModule Splitter: 703 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mEmitter: Generate Classes: 4120 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mEmitter: Write trees: 562 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mEmitter: Class tree cache stats: reused: 51 -- invalidated: 2[0m
+[0m[[0m[0mdebug[0m] [0m[0mEmitter: Method tree cache stats: reused: 96 -- invalidated: 5[0m
+[0m[[0m[0mdebug[0m] [0m[0mEmitter: 6815 us[0m
+[0m[[0m[0mdebug[0m] [0m[0mBasicBackend: Write result: 24211 us[0m

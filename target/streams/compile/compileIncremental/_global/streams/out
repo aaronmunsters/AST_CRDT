@@ -1,0 +1,33 @@
+[0m[[0m[0mdebug[0m] [0m[0m[zinc] IncrementalCompile -----------[0m
+[0m[[0m[0mdebug[0m] [0m[0mIncrementalCompile.incrementalCompile[0m
+[0m[[0m[0mdebug[0m] [0m[0mprevious = Stamps for: 3 products, 1 sources, 3 libraries[0m
+[0m[[0m[0mdebug[0m] [0m[0mcurrent source = Set(${BASE}/src/main/scala/AST/Node/SchemeString.scala, ${BASE}/src/main/scala/AST/Edit/Delete.scala, ${BASE}/src/main/scala/AST/Node/SchemeNumber.scala, ${BASE}/src/main/scala/AST/Edit/Add.scala, ${BASE}/src/main/scala/AST/ConflictFreeReplicatedAst.scala, ${BASE}/src/main/scala/AST/Node/SchemeIdentifier.scala, ${BASE}/src/main/scala/AST/HeadedAST.scala, ${BASE}/src/main/scala/AST/Edit/Wrap.scala, ${BASE}/src/main/scala/AST/Node/SchemeNode.scala, ${BASE}/src/main/scala/AST/Edit/Move.scala, ${BASE}/src/main/scala/tutorial/webapp/TutorialApp.scala, ${BASE}/src/main/scala/AST/Node/SchemeExpression.scala, ${BASE}/src/main/scala/AST/Edit/UpdateValue.scala, ${BASE}/src/main/scala/AST/Edit/AstEdit.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0m> initialChanges = InitialChanges(Changes(added = Set(${BASE}/src/main/scala/AST/ConflictFreeReplicatedAst.scala, ${BASE}/src/main/scala/AST/Node/SchemeExpression.scala, ${BASE}/src/main/scala/AST/HeadedAST.scala, ${BASE}/src/main/scala/AST/Edit/Delete.scala, ${BASE}/src/main/scala/AST/Edit/AstEdit.scala, ${BASE}/src/main/scala/AST/Edit/Wrap.scala, ${BASE}/src/main/scala/AST/Edit/Add.scala, ${BASE}/src/main/scala/AST/Node/SchemeNode.scala, ${BASE}/src/main/scala/AST/Node/SchemeNumber.scala, ${BASE}/src/main/scala/AST/Node/SchemeIdentifier.scala, ${BASE}/src/main/scala/AST/Node/SchemeString.scala, ${BASE}/src/main/scala/AST/Edit/UpdateValue.scala, ${BASE}/src/main/scala/AST/Edit/Move.scala), removed = Set(), changed = Set(${BASE}/src/main/scala/tutorial/webapp/TutorialApp.scala), unmodified = ...),Set(${BASE}/target/scala-2.13/classes/tutorial/webapp/Operation.class, ${BASE}/target/scala-2.13/classes/tutorial/webapp/TutorialApp$.class, ${BASE}/target/scala-2.13/classes/tutorial/webapp/TutorialApp.class),Set(),API Changes: Set())[0m
+[0m[[0m[0mdebug[0m] [0m[0m[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial source changes:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	removed: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	added: Set(${BASE}/src/main/scala/AST/Node/SchemeString.scala, ${BASE}/src/main/scala/AST/Edit/Delete.scala, ${BASE}/src/main/scala/AST/Node/SchemeNumber.scala, ${BASE}/src/main/scala/AST/Edit/Add.scala, ${BASE}/src/main/scala/AST/ConflictFreeReplicatedAst.scala, ${BASE}/src/main/scala/AST/Node/SchemeIdentifier.scala, ${BASE}/src/main/scala/AST/HeadedAST.scala, ${BASE}/src/main/scala/AST/Edit/Wrap.scala, ${BASE}/src/main/scala/AST/Node/SchemeNode.scala, ${BASE}/src/main/scala/AST/Edit/Move.scala, ${BASE}/src/main/scala/AST/Node/SchemeExpression.scala, ${BASE}/src/main/scala/AST/Edit/UpdateValue.scala, ${BASE}/src/main/scala/AST/Edit/AstEdit.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	modified: Set(${BASE}/src/main/scala/tutorial/webapp/TutorialApp.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0mInvalidated products: Set(${BASE}/target/scala-2.13/classes/tutorial/webapp/Operation.class, ${BASE}/target/scala-2.13/classes/tutorial/webapp/TutorialApp$.class, ${BASE}/target/scala-2.13/classes/tutorial/webapp/TutorialApp.class)[0m
+[0m[[0m[0mdebug[0m] [0m[0mExternal API changes: API Changes: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mModified binary dependencies: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial directly invalidated classes: Set(tutorial.webapp.TutorialApp, tutorial.webapp.Operation)[0m
+[0m[[0m[0mdebug[0m] [0m[0mSources indirectly invalidated by:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	product: Set(${BASE}/src/main/scala/tutorial/webapp/TutorialApp.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	binary dep: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	external source: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mall 14 sources are invalidated[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial set of included nodes: tutorial.webapp.TutorialApp, tutorial.webapp.Operation[0m
+[0m[[0m[0mdebug[0m] [0m[0mRecompiling all sources: number of invalidated sources > 50.0% of all sources[0m
+[0m[[0m[0mdebug[0m] [0m[0mcompilation cycle 1[0m
+[0m[[0m[0minfo[0m] [0m[0mcompiling 14 Scala sources to /home/aaron/Documents/VUB/2MA/ccbd/ASSIGNMENTS/CRDT_AST/target/scala-2.13/classes ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mGetting org.scala-sbt:compiler-bridge_2.13:1.5.7:compile for Scala 2.13.1[0m
+[0m[[0m[0mdebug[0m] [0m[0m[zinc] Running cached compiler 34378318 for Scala compiler version 2.13.1[0m
+[0m[[0m[0mdebug[0m] [0m[0m[zinc] The Scala compiler is invoked with:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	-Xplugin:/home/aaron/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-compiler_2.13.1/1.7.1/scalajs-compiler_2.13.1-1.7.1.jar[0m
+[0m[[0m[0mdebug[0m] [0m[0m	-bootclasspath[0m
+[0m[[0m[0mdebug[0m] [0m[0m	/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jfr.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/classes:/home/aaron/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.1/scala-library-2.13.1.jar[0m
+[0m[[0m[0mdebug[0m] [0m[0m	-classpath[0m
+[0m[[0m[0mdebug[0m] [0m[0m	/home/aaron/Documents/VUB/2MA/ccbd/ASSIGNMENTS/CRDT_AST/target/scala-2.13/classes:/home/aaron/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-library_2.13/1.7.1/scalajs-library_2.13-1.7.1.jar:/home/aaron/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-dom_sjs1_2.13/1.1.0/scalajs-dom_sjs1_2.13-1.1.0.jar[0m
+[0m[[0m[0mdebug[0m] [0m[0mScala compilation took 2.234509762 s[0m
+[0m[[0m[0minfo[0m] [0m[0mdone compiling[0m
