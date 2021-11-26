@@ -15,7 +15,14 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
   def hasRoot(identity: Identity): Boolean = root contains identity
 
-  def isAncestorOf(parent: Identity, child: Identity): Boolean = ??? // TODO
+  def isAncestorOf(potentialParent: Identity, potentialChild: Identity): Boolean = {
+    assert(contains(potentialParent) && contains(potentialChild))
+    val parentIdOption = header(potentialChild).parent
+    if (parentIdOption.isEmpty) return false
+    val parentId = parentIdOption.get
+    if (parentId == potentialParent) return true
+    isAncestorOf(potentialParent, parentId)
+  }
 
   def toAstString: String = {
     def nodeToString(nodeIdentity: Identity): String = {
