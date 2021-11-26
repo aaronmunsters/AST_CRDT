@@ -13,6 +13,8 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
   def contains(identity: Identity): Boolean = header.contains(identity)
 
+  def hasRoot(identity: Identity): Boolean = root contains identity
+
   def toAstString: String = {
     def nodeToString(nodeIdentity: Identity): String = {
       header.get(nodeIdentity) match {

@@ -1,6 +1,6 @@
 package AST
 
-import AST.Edit.Add
+import AST.Edit.{Add, Delete}
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber}
 import utest._
 
@@ -17,20 +17,24 @@ object HeadedASTTest extends TestSuite {
       val ast = HeadedAST.empty[Identity]
       assert(true)
 
-      val topLevelExpression = SchemeExpression(getIdentity, None, Seq())
-      val plusIdentifier = SchemeIdentifier(getIdentity, Some(topLevelExpression.id), "+")
-      val numberLeft = SchemeNumber(getIdentity, Some(topLevelExpression.id), 1)
-      val numberRight = SchemeNumber(getIdentity, Some(topLevelExpression.id), 2)
+      val plusWrapExpression = SchemeExpression(getIdentity, None, Seq())
+      val plusIdentifier = SchemeIdentifier(getIdentity, Some(plusWrapExpression.id), "+")
+      val numberLeft = SchemeNumber(getIdentity, Some(plusWrapExpression.id), 1)
+      val numberRight = SchemeNumber(getIdentity, Some(plusWrapExpression.id), 2)
 
       val astExpectedString = "(+ 1 2)"
-      val astActualString = ast
-        .perform(Add.from(topLevelExpression))
+      val astWithSimpleAddition = ast
+        .perform(Add.from(plusWrapExpression))
         .perform(Add.from(plusIdentifier))
         .perform(Add.from(numberLeft))
         .perform(Add.from(numberRight))
-        .toAstString
 
-      assert(astExpectedString == astActualString)
+      assert(astExpectedString == astWithSimpleAddition.toAstString)
+
+      assert(astWithSimpleAddition.perform(Delete(plusIdentifier.id)).toAstString == "(1 2)")
+
+      val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression))
+      println(emptyAst.toAstString)
     }
   }
 }

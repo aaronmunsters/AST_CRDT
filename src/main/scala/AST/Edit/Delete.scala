@@ -1,25 +1,31 @@
 package AST.Edit
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber, SchemeString}
+import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
+
+object Delete {
+  def apply[Identity](node: SchemeNode[Identity]): Delete[Identity] = Delete(node.id)
+}
 
 case class Delete[Identity](target: Identity) extends AstEdit[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
-    ast.header.get(target) match {
-      case Some(targetTree) => targetTree.parent match {
-        case Some(parent) => ast.header.get(parent) match {
-          case Some(parentTree) => parentTree match {
-            case expression: SchemeExpression[Identity] =>
-              val updatedExpression = expression.copy(subexpressions = expression.subexpressions.filterNot(_ == target))
-              val updatedHeader = ast.header.updated(updatedExpression.id, updatedExpression).removed(target)
-              ast.copy(header = updatedHeader)
-            case _ => ast // target deletion node has no parent
-          }
-          case None => // target node parent invalid, TODO: check tree as this is an invalid state
-            ast
-        }
-        case None => HeadedAST.empty
-      }
-      case None => ast
+    if(ast hasRoot target) return HeadedAST.empty
+    if(! (ast contains target)) return ast
+
+    // Ast contains node and it is not the root
+    val targetTree = ast.header(target)
+    // 1. Remove children
+    val withoutChildren = targetTree match {
+      case schemeExpression: SchemeExpression[Identity] =>
+        schemeExpression.subexpressions.foldLeft(ast)((ast, toRemove) => ast.perform(Delete(toRemove)))
+      case _ => ast
+    }
+    // 2. Remove self
+    ast.header(targetTree.parent.get) match {
+      case expression: SchemeExpression[Identity] =>
+        val updatedExpression = expression.removeChild(target)
+        val updatedHeader = ast.header.updated(updatedExpression.id, updatedExpression).removed(target)
+        ast.copy(header = updatedHeader)
+      case _ => ast // TODO: throw error!
     }
   }
 }
