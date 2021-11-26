@@ -1,11 +1,5 @@
 package AST.Edit
 import AST.HeadedAST
-import AST.Node.SchemeExpression
-
-// Moving the current complete tree underneath a new tree could then be:
-//
-
-// TODO: determine how one could hang the current root under a different node
 
 case class Move[Identity](child: Identity, parent: Identity, index: Int) extends AstEdit[Identity] {
 
@@ -15,6 +9,14 @@ case class Move[Identity](child: Identity, parent: Identity, index: Int) extends
   //  - Parent of A: list of children must be updated
 
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
+    assert(ast contains child)
+    assert(ast contains parent)
+    assert(! (ast hasRoot child))
+    assert(! (ast.isAncestorOf(child, parent)))
+
+    val childTree = ast.header(child)
+    val parentTree = ast.header(parent)
+
     ast
   }
 }

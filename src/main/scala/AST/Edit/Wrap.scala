@@ -1,9 +1,10 @@
 package AST.Edit
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
+import AST.Node.{RecursiveNode, SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
 
-case class Wrap[Identity](child: Identity, parent: SchemeNode[Identity]) extends AstEdit[Identity] {
+case class Wrap[Identity](child: Identity, parent: RecursiveNode[Identity]) extends AstEdit[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
+    assert(parent contains child)
     ast.header.get(child) match {
       case None => ast
       case Some(childTree) =>

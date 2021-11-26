@@ -15,6 +15,8 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
   def hasRoot(identity: Identity): Boolean = root contains identity
 
+  def isAncestorOf(parent: Identity, child: Identity): Boolean = ??? // TODO
+
   def toAstString: String = {
     def nodeToString(nodeIdentity: Identity): String = {
       header.get(nodeIdentity) match {
