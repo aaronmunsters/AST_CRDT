@@ -75,3 +75,8 @@ fabric.properties
 
 # Generated target classes
 target/
+project/project/
+project/target/
+
+.bsp/
+.idea/
