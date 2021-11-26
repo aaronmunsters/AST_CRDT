@@ -3,11 +3,15 @@ package AST
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
 
 object HeadedAST {
-  def init[Identity]: HeadedAST[Identity] = HeadedAST(Map(), None)
+  def empty[Identity]: HeadedAST[Identity] = HeadedAST(Map(), None)
+  def withRoot[Identity](root: SchemeNode[Identity]): HeadedAST[Identity] =
+    HeadedAST(Map(root.id -> root), Some(root.id))
 }
 
 case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root: Option[Identity]) {
   def perform(edit: Edit.AstEdit[Identity]): HeadedAST[Identity] = edit.perform(this)
+
+  def contains(identity: Identity): Boolean = header.contains(identity)
 
   def toAstString: String = {
     def nodeToString(nodeIdentity: Identity): String = {

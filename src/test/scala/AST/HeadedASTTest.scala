@@ -14,28 +14,21 @@ object HeadedASTTest extends TestSuite {
 
   override def tests: Tests = Tests {
     test("Creation") {
-      val ast = HeadedAST.init[Identity]
+      val ast = HeadedAST.empty[Identity]
       assert(true)
 
       val topLevelExpression = SchemeExpression(getIdentity, None, Seq())
-      val plusIdentifier = SchemeIdentifier(getIdentity, topLevelExpression.parent, "+")
+      val plusIdentifier = SchemeIdentifier(getIdentity, Some(topLevelExpression.id), "+")
       val numberLeft = SchemeNumber(getIdentity, Some(topLevelExpression.id), 1)
       val numberRight = SchemeNumber(getIdentity, Some(topLevelExpression.id), 2)
 
-      val firstEdit = Add(topLevelExpression, None, 0)
-      val secondEdit = Add(plusIdentifier, Some(topLevelExpression.id), 0)
-      val thirdEdit = Add(numberLeft, Some(topLevelExpression.id), 1)
-      val fourthEdit = Add(numberRight, Some(topLevelExpression.id), 2)
-
       val astExpectedString = "(+ 1 2)"
       val astActualString = ast
-        .perform(firstEdit)
-        .perform(secondEdit)
-        .perform(thirdEdit)
-        .perform(fourthEdit)
+        .perform(Add.from(topLevelExpression))
+        .perform(Add.from(plusIdentifier))
+        .perform(Add.from(numberLeft))
+        .perform(Add.from(numberRight))
         .toAstString
-
-      println(astActualString)
 
       assert(astExpectedString == astActualString)
     }

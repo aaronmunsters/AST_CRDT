@@ -17,7 +17,7 @@ case class Delete[Identity](target: Identity) extends AstEdit[Identity] {
           case None => // target node parent invalid, TODO: check tree as this is an invalid state
             ast
         }
-        case None => HeadedAST(Map(), None)
+        case None => HeadedAST.empty
       }
       case None => ast
     }
