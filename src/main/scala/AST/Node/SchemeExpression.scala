@@ -9,19 +9,23 @@ case class SchemeExpression[Identity](id: Identity,
                                       subexpressions: Seq[Identity]) extends RecursiveNode[Identity] {
   def contains(identity: Identity): Boolean = subexpressions.contains(identity)
 
-  def prependChild(identity: Identity): SchemeExpression[Identity] = {
+  def prependChild(identity: Identity): SchemeExpression[Identity] =
     copy(subexpressions = identity +: subexpressions)
-  }
 
-  // TODO: addChild for a given index will actually replace the node, needs to be fixed!
-  def addChild(identity: Identity, index: Int): SchemeExpression[Identity] = {
+  /**
+   * Inserts the given identity at the position specified by index, causing the elements after it to move by 1
+   *
+   * @param identity : the identity to add
+   * @param index    : the index in the sequence of children where to add the identity
+   * @return a copy of the SchemeExpression with the newly added child
+   */
+  def addChild(identity: Identity, index: Int): SchemeExpression[Identity] =
     copy(subexpressions =
-      if(index < subexpressions.length)
-        subexpressions.updated(index, identity)
-      else
+      if (index < subexpressions.length) {
+        subexpressions.take(index) ++ Seq(identity) ++ subexpressions.drop(index)
+      } else
         subexpressions :+ identity
     )
-  }
 
   def removeChild(identity: Identity): SchemeExpression[Identity] =
     copy(subexpressions = subexpressions.filterNot(_ == identity))
