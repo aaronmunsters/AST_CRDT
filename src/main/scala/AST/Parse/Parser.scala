@@ -3,59 +3,26 @@ package AST.Parse
 import AST.HeadedAST
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
 import fastparse._
-import NoWhitespace._ // ignore whitespaces, newlines etc.
+import MultiLineWhitespace._ // ignore whitespaces, newlines etc.
 
-// TODO: parser requires space before ending parenthesis, needs to be fixed!
 object Parser {
   def parseSchemeSmall[Identity](source: String, getIdentity: () => Identity): Option[HeadedAST[Identity]] = {
 
-    // === SPACES === //
-
-    def space[_: P]: P[Unit] = P ( CharIn(" \t\r\n") )
-
-    // === SPACES === //
-
-    // === IDENTIFIER PARSING === //
-
     def identifier[_: P] =
-      P((CharIn("a-zA-Z_-=!@#$%^&*=+'\\/<>") ~ CharsWhile(c => ! " \t\r\n".contains(c)).rep).!)
+      P(CharsWhileIn("a-zA-Z_=!@#$%^&*=+'\\/<>").!)
         .map(identifier => HeadedAST.withRoot(SchemeIdentifier(getIdentity(), None, identifier)))
-
-    // === IDENTIFIER PARSING === //
-
-    // === STRING PARSING === //
 
     def string[_: P] =
       P("\"" ~ CharsWhile(_ != '\"').rep.! ~ "\"")
         .map(string => HeadedAST.withRoot(SchemeString(getIdentity(), None, string)))
 
-    // === STRING PARSING === //
+    def number[_: P] = P(("-".? ~ CharsWhileIn("0-9")).!.map(
+      number => HeadedAST.withRoot(SchemeNumber(getIdentity(), None, number.toInt))))
 
-    // === NUMBER PARSING === //
-
-    def digits[_: P] = P(CharsWhileIn("0-9"))
-
-    def exponent[_: P] = P(CharIn("eE") ~ CharIn("+\\-").? ~ digits)
-
-    def fractional[_: P] = P("." ~ digits)
-
-    def integral[_: P] = P("0" | CharIn("1-9") ~ digits.?)
-
-    def number[_: P] = P(CharIn("+\\-").? ~ integral ~ fractional.? ~ exponent.?).!.map(
-      number => HeadedAST.withRoot(SchemeNumber(getIdentity(), None, number.toInt)))
-
-    // === NUMBER PARSING === //
-
-    // === TERM PARSING === //
-
-    def term[_: P] = P(string | number | identifier)
-
-    // === TERM PARSING === //
-
-    // === EXPRESSION PARSING === //
+    def term[_: P] = P(number | string | identifier)
 
     def expression[_: P]: P[HeadedAST[Identity]] =
-      P("(" ~ space.rep ~ (expression | term).rep(sep = space.rep) ~ space.rep ~ ")")
+      P("(" ~/ (term | expression).rep(1) ~ ")")
         .map(childrenHeadedAsts => childrenHeadedAsts
           .foldRight(
             HeadedAST.withRoot(SchemeExpression(getIdentity(), None, Seq()))
@@ -65,12 +32,10 @@ object Parser {
             soFar.copy(header = updatedHeader)
           }))
 
-    // === EXPRESSION PARSING === //
-
-    def program[_: P] = P( space.rep ~ expression ~ space.rep ~ End)
+    def program[_: P] = P(Start ~ expression ~ End)
 
     parse(source, program(_)) match {
-      case Parsed.Success(headedAST: HeadedAST[Identity], index) => Some(headedAST)
+      case Parsed.Success(headedAST: HeadedAST[Identity], index) if index == source.length => Some(headedAST)
       case _ => None
     }
   }

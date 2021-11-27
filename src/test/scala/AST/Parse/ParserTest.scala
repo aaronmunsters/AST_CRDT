@@ -10,17 +10,16 @@ object ParserTest extends TestSuite {
       identity
     }
 
-    val goalSourcecode = """
-         (begin
-          (define a 10 )
-          (define b 20 )
-          (+ 1 2 3 a b ) )   """
-
+    val goalSourcecode =
+      """      (begin
+          (define a 10)
+          (define b 20)
+          (+ 1 2 3 a b))"""
     println(Parser.parseSchemeSmall(goalSourcecode, getIdentity).get.toAstString)
 
 
     println(Parser.parseSchemeSmall("((((((     thisIsAnIdentifier    ))))))", getIdentity).get.toAstString)
     println(Parser.parseSchemeSmall("(    100394   10   )", getIdentity).get.toAstString)
-    println(Parser.parseSchemeSmall("(\"foo Bar\")", getIdentity).get.toAstString)
+    println(Parser.parseSchemeSmall("(\"foo      Bar\")", getIdentity).get.toAstString)
   }
 }
