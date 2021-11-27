@@ -29,18 +29,18 @@ object HeadedASTTest extends TestSuite {
         .perform(Add.from(numberLeft))
         .perform(Add.from(numberRight))
 
-      assert(astExpectedString == astWithSimpleAddition.toAstString)
+      assert(astExpectedString == astWithSimpleAddition.toAstString())
 
-      assert(astWithSimpleAddition.perform(Delete(plusIdentifier.id)).toAstString == "(1 2)")
+      assert(astWithSimpleAddition.perform(Delete(plusIdentifier.id)).toAstString() == "(1 2)")
 
       val topLevelExpression = SchemeExpression(getIdentity, None, Seq(plusWrapExpression.id))
       // TODO: add type-level support for recursive nodes
 
       val wrapped = astWithSimpleAddition.perform(Wrap(plusWrapExpression.id, topLevelExpression))
-      assert(wrapped.toAstString == "((+ 1 2))")
+      assert(wrapped.toAstString() == "((+ 1 2))")
 
       val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression))
-      println(emptyAst.toAstString)
+      println(emptyAst.toAstString())
     }
   }
 }
