@@ -27,12 +27,12 @@ case class Move[Identity](child: Identity, newParent: Identity, index: Int) exte
 
     val updatedNewParent = newParentTree match {
       case expression: SchemeExpression[Identity] => expression.addChild(child, index)
-      case old: _ => old
+      case old => old
     }
 
     val updatedOldParent = oldParentTree match {
       case expression: SchemeExpression[Identity] => expression.removeChild(child)
-      case old: _ => old
+      case old => old
     }
 
     val updatedChild = childTree match { // TODO: look for neater way to update this value
