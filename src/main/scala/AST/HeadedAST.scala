@@ -31,7 +31,7 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
           case expression: SchemeExpression[Identity] => s"(${expression.subexpressions.map(nodeToString).mkString(" ")})"
           case identifier: SchemeIdentifier[Identity] => identifier.identifier
           case number: SchemeNumber[Identity] => number.number.toString
-          case string: SchemeString[Identity] => string.content
+          case string: SchemeString[Identity] => '"' + string.content + '"'
         }
         case None => "" // TODO: Should throw error?
       }
