@@ -16,7 +16,7 @@ object Parser {
       P("\"" ~ CharsWhile(_ != '\"').rep.! ~ "\"")
         .map(string => HeadedAST.withRoot(SchemeString(getIdentity(), None, string)))
 
-    def number[_: P] = P(("-".? ~ CharsWhileIn("0-9")).!.map(
+    def number[_: P] = P(CharsWhileIn("0-9").!.map(
       number => HeadedAST.withRoot(SchemeNumber(getIdentity(), None, number.toInt))))
 
     def term[_: P] = P(number | string | identifier)
