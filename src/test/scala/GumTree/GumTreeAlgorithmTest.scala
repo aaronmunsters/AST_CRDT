@@ -9,7 +9,7 @@ object GumTreeAlgorithmTest extends TestSuite {
   type Identity = Int
   private var identity: Identity = 0
   private val getIdentity = () => {
-    identity += 1;
+    identity += 1
     identity
   }
 
@@ -48,6 +48,13 @@ object GumTreeAlgorithmTest extends TestSuite {
       println(state1.toIdentifiedString)
       println(state2.toIdentifiedString)
       println(GumTreeAlgorithm.mappings(state1, state2).map { case (from, to) => s"${from.id}->${to.id}"})
+
+      val state3 = inMemTreeFrom("(begin (define a 10 ) (define b  20) (foo  bar))").get
+      val state4 = inMemTreeFrom("(((begin (define a 10 ) (define b  20) (foo  bar))))").get
+
+      println(state3.toIdentifiedString)
+      println(state4.toIdentifiedString)
+      println(GumTreeAlgorithm.mappings(state3, state4).map { case (from, to) => s"${from.id}->${to.id}"})
     }
   }
 }
