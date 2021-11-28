@@ -20,7 +20,14 @@ case class SchemeExpression[Identity](id: Identity,
 
   def sameLabel(n: SchemeNode[Identity]): Boolean = {
     n match {
-      case schemeExpression: SchemeExpression[Identity] => true
+      case _: SchemeExpression[Identity] => true
+      case _ => false
+    }
+  }
+
+  def sameNodeValue(n: SchemeNode[Identity]): Boolean = {
+    n match {
+      case _: SchemeExpression[Identity] => true
       case _ => false
     }
   }

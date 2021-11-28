@@ -13,6 +13,8 @@ trait SchemeNode[Identity] {
 
   def sameLabel(n: SchemeNode[Identity]): Boolean
 
+  def sameNodeValue(n: SchemeNode[Identity]): Boolean
+
   val subNodes: Seq[SchemeNode[Identity]]
 
   def toIdentifiedString: String

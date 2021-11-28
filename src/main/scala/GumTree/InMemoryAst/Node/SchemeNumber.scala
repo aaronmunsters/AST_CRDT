@@ -14,7 +14,14 @@ case class SchemeNumber[Identity](id: Identity,
 
   def sameLabel(n: SchemeNode[Identity]): Boolean = {
     n match {
-      case schemeNumber: SchemeNumber[Identity] => true
+      case _: SchemeNumber[Identity] => true
+      case _ => false
+    }
+  }
+
+  def sameNodeValue(n: SchemeNode[Identity]): Boolean = {
+    n match {
+      case schemeNumber: SchemeNumber[Identity] => schemeNumber.number == number
       case _ => false
     }
   }
