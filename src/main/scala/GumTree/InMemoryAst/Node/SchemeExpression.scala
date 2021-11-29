@@ -2,7 +2,7 @@ package GumTree.InMemoryAst.Node
 
 case class SchemeExpression[Identity](id: Identity,
                                       subexpressions: Seq[SchemeNode[Identity]],
-                                      subNodes: Seq[SchemeNode[Identity]]) extends RecursiveNode[Identity] {
+                                      descendants: Seq[SchemeNode[Identity]]) extends RecursiveNode[Identity] {
   def contains(identity: Identity): Boolean = subexpressions.exists(_.id == identity)
 
   def height: Int = subexpressions.map(_.height).max + 1

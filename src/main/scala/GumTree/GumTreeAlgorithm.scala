@@ -7,24 +7,14 @@ import scala.collection.mutable
 
 object GumTreeAlgorithm {
   def dice[Identity](t1: SchemeNode[Identity], t2: SchemeNode[Identity], mapping: mutable.Map[SchemeNode[Identity], SchemeNode[Identity]]): Float = {
-    if (descendants(t1).size + descendants(t2).size == 0) return if (t1 isomorphic t2) 1 else 0
-    (2 * descendants(t1).count(mapping.contains)) / (descendants(t1).size + descendants(t2).size)
-  }
-
-  def descendants[Identity](tree: SchemeNode[Identity]): Set[SchemeNode[Identity]] = {
-    tree match {
-      case schemeExpression: SchemeExpression[Identity] =>
-        val children: Seq[SchemeNode[Identity]] = schemeExpression.subexpressions
-        val grandChildren: Seq[SchemeNode[Identity]] = children.flatMap(descendants[Identity])
-        (children ++ grandChildren).toSet
-      case _ => Set()
-    }
+    if (t1.descendants.size + t2.descendants.size == 0) return if (t1 isomorphic t2) 1 else 0
+    (2 * t1.descendants.count(mapping.contains)) / (t1.descendants.size + t2.descendants.size)
   }
 
   def isomorphicDescendants[Identity](t1: SchemeNode[Identity], t2: SchemeNode[Identity]): Seq[(SchemeNode[Identity], SchemeNode[Identity])] = {
     var res = Seq[(SchemeNode[Identity], SchemeNode[Identity])]()
-    val t1_desc = descendants(t1)
-    var t2_desc = descendants(t2)
+    val t1_desc = t1.descendants
+    var t2_desc = t2.descendants
     for (t1_d <- t1_desc) {
       t2_desc.find(_ isomorphic t1_d).foreach(t2_match => {
         res = (t1_d, t2_match) +: res
@@ -60,8 +50,8 @@ object GumTreeAlgorithm {
         val H2 = L2.pop.get
         for {t1 <- H1; t2 <- H2} {
           if (t1 isomorphic t2) {
-            if (T2.subNodes.filterNot(_ == t2).exists(_ isomorphic t1) ||
-              T1.subNodes.filterNot(_ == t1).exists(_ isomorphic t2)) {
+            if (T2.descendants.filterNot(_ == t2).exists(_ isomorphic t1) ||
+              T1.descendants.filterNot(_ == t1).exists(_ isomorphic t2)) {
               A.update(t1, t2)
             } else {
               M.update(t1, t2)
@@ -104,7 +94,7 @@ object GumTreeAlgorithm {
                          M: mutable.Map[SchemeNode[Identity], SchemeNode[Identity]]):
   mutable.Map[SchemeNode[Identity], SchemeNode[Identity]] = {
     def candidate(t1: SchemeNode[Identity], M: mutable.Map[SchemeNode[Identity], SchemeNode[Identity]]): Option[SchemeNode[Identity]] = {
-      T2.subNodes
+      T2.descendants
         .filter(_ sameLabel t1)
         .filterNot(M.values.toSeq.contains(_))
         .headOption
@@ -112,13 +102,13 @@ object GumTreeAlgorithm {
       // TODO: could be converted to a certain coefficient
     }
 
-    for (t1 <- T1.subNodes.filterNot(M.contains).filter(_ match {
+    for (t1 <- T1.descendants.filterNot(M.contains).filter(_ match {
       case node: SchemeExpression[Identity] => node.subexpressions.exists(M.contains)
       case _ => true
     })) {
       candidate(t1, M).filter(dice(t1, _, M) >= minDice).foreach(t2 => {
         M.update(t1, t2)
-        if (Math.max(descendants(t1).size, descendants(t2).size) < maxSize) {
+        if (Math.max(t1.descendants.size, t2.descendants.size) < maxSize) {
           val R = opt(t1, t2)
           for ((t1, t2) <- R) {
             if (!M.exists(_ == (t1, t2)) && (t1 sameLabel t2)) {

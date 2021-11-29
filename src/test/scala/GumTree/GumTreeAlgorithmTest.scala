@@ -34,7 +34,7 @@ object GumTreeAlgorithmTest extends TestSuite {
         scala.collection.mutable.Map.empty[SchemeNode[Identity], SchemeNode[Identity]]
       )
 
-      assert(GumTreeAlgorithm.descendants(state1).size + 1 == 13)
+      assert(state1.descendants.size + 1 == 13)
 
       // (  begin (  define  a  10  ) (  define  b   20  )  (    foo   bar ) )
       //

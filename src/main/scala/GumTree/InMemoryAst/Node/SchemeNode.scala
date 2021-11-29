@@ -15,7 +15,8 @@ trait SchemeNode[Identity] {
 
   def sameNodeValue(n: SchemeNode[Identity]): Boolean
 
-  val subNodes: Seq[SchemeNode[Identity]]
+  /** A sequence of descendants in post order */
+  val descendants: Seq[SchemeNode[Identity]]
 
   def toIdentifiedString: String
 }
@@ -26,7 +27,7 @@ object SchemeNode {
       headedAST.header(identity) match {
         case Node.SchemeExpression(id, _, subexpressions) =>
           val children = subexpressions.map(headedAST.header).map(_.id).map(crawl)
-          val subNodes = children.flatMap(_.subNodes).reverse ++ children.reverse
+          val subNodes = children.flatMap(_.descendants).reverse ++ children.reverse
           SchemeExpression(id, children, subNodes)
         case Node.SchemeIdentifier(id, _, identifier) =>
           SchemeIdentifier(id, identifier, Seq())

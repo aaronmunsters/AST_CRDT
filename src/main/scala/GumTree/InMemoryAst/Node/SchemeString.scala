@@ -2,7 +2,7 @@ package GumTree.InMemoryAst.Node
 
 case class SchemeString[Identity](id: Identity,
                                   content: String,
-                                  subNodes: Seq[SchemeNode[Identity]]) extends SchemeNode[Identity] {
+                                  descendants: Seq[SchemeNode[Identity]]) extends SchemeNode[Identity] {
   def height: Int = 1
 
   def isomorphic(n: SchemeNode[Identity]): Boolean = {
