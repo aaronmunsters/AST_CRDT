@@ -1,17 +1,8 @@
 package GumTree.InMemoryAst.Node
 
 case class SchemeString[Identity](id: Identity,
-                                  content: String,
-                                  descendants: Seq[SchemeNode[Identity]]) extends SchemeNode[Identity] {
-  def height: Int = 1
-
-  def isomorphic(n: SchemeNode[Identity]): Boolean = {
-    n match {
-      case schemeString: SchemeString[Identity] => schemeString.content == content
-      case _ => false
-    }
-  }
-
+                                  value: String,
+                                  descendants: Seq[SchemeNode[Identity]]) extends LeafNode[Identity, String] {
   def sameLabel(n: SchemeNode[Identity]): Boolean = {
     n match {
       case _: SchemeString[Identity] => true
@@ -21,10 +12,8 @@ case class SchemeString[Identity](id: Identity,
 
   def sameNodeValue(n: SchemeNode[Identity]): Boolean = {
     n match {
-      case schemeString: SchemeString[Identity] => schemeString.content == content
+      case schemeString: SchemeString[Identity] => schemeString.value == value
       case _ => false
     }
   }
-
-  def toIdentifiedString: String = s"<$id>$content"
 }

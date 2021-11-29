@@ -5,6 +5,9 @@ import AST.{HeadedAST, Node}
 trait SchemeNode[Identity] {
   val id: Identity
 
+  /** A sequence of descendants in post order */
+  val descendants: Seq[SchemeNode[Identity]]
+
   def toString: String
 
   def height: Int
@@ -14,9 +17,6 @@ trait SchemeNode[Identity] {
   def sameLabel(n: SchemeNode[Identity]): Boolean
 
   def sameNodeValue(n: SchemeNode[Identity]): Boolean
-
-  /** A sequence of descendants in post order */
-  val descendants: Seq[SchemeNode[Identity]]
 
   def toIdentifiedString: String
 }

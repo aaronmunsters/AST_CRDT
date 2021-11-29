@@ -17,11 +17,11 @@ object EditScriptComputer {
         val newValue = after_node match {
           case _: SchemeExpression[Identity] => None
           case i: SchemeIdentifier[Identity] =>
-            if (before_node.asInstanceOf[SchemeIdentifier[Identity]].identifier != i.identifier) Some(i.identifier) else None
+            if (before_node.asInstanceOf[SchemeIdentifier[Identity]].value != i.value) Some(i.value) else None
           case n: SchemeNumber[Identity] =>
-            if (before_node.asInstanceOf[SchemeNumber[Identity]].number != n.number) Some(n.number) else None
+            if (before_node.asInstanceOf[SchemeNumber[Identity]].value != n.value) Some(n.value) else None
           case s: SchemeString[Identity] =>
-            if (before_node.asInstanceOf[SchemeString[Identity]].content != s.content) Some(s.content) else None
+            if (before_node.asInstanceOf[SchemeString[Identity]].value != s.value) Some(s.value) else None
         }
         newValue.map(UpdateValue(before_node.id, _))
       }.toSeq.flatten
