@@ -15,11 +15,28 @@ object ParserTest extends TestSuite {
           (define a 10)
           (define b 20)
           (+ 1 2 3 a b))"""
-    println(Parser.parseSchemeSmall(goalSourcecode, getIdentity).get.toPrettyAstString())
 
+    assert(Parser.parseSchemeSmall(goalSourcecode, getIdentity).get.toPrettyAstString() ==
+      """(begin
+        |    (define
+        |        a
+        |        10)
+        |    (define
+        |        b
+        |        20)
+        |    (+
+        |        1
+        |        2
+        |        3
+        |        a
+        |        b))""".stripMargin
+    )
 
-    println(Parser.parseSchemeSmall("((((((     thisIsAnIdentifier    ))))))", getIdentity).get.toPrettyAstString())
-    println(Parser.parseSchemeSmall("(    100394   10   )", getIdentity).get.toPrettyAstString())
-    println(Parser.parseSchemeSmall("(\"foo      Bar\")", getIdentity).get.toPrettyAstString())
+    assert("((((((thisIsAnIdentifier))))))" == Parser.parseSchemeSmall("((((((     thisIsAnIdentifier    ))))))", getIdentity).get.toPrettyAstString())
+    assert(Parser.parseSchemeSmall("(    100394   10   )", getIdentity).get.toPrettyAstString() ==
+    """(100394
+      |    10)""".stripMargin)
+    assert(Parser.parseSchemeSmall("(\"foo      Bar\")", getIdentity).get.toPrettyAstString() ==
+    "(\"foo      Bar\")")
   }
 }

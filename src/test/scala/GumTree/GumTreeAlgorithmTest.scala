@@ -45,16 +45,14 @@ object GumTreeAlgorithmTest extends TestSuite {
       // (  begin (  define  a  100 ) (  define  bb  20)    (    fool  bar ) )
       //                        ⚡                ⚡               ⚡
 
-      println(state1.toIdentifiedString)
-      println(state2.toIdentifiedString)
-      println(GumTreeAlgorithm.mappings(state1, state2).map { case (from, to) => s"${from.id}->${to.id}"})
+      assert(GumTreeAlgorithm.mappings(state1, state2).map { case (from, to) => (from.id, to.id) } ==
+        Map(12 -> 25, 4 -> 17, 8 -> 21, 9 -> 22, 6 -> 19, 1 -> 14, 3 -> 16, 10 -> 23, 5 -> 18, 11 -> 24, 2 -> 15, 7 -> 20))
 
-      val state3 = inMemTreeFrom("(begin (define a 10 ) (define b  20) (foo  bar))").get
+      val state3 = inMemTreeFrom("  (begin (define a 10 ) (define b  20) (foo  bar))  ").get
       val state4 = inMemTreeFrom("(((begin (define a 10 ) (define b  20) (foo  bar))))").get
 
-      println(state3.toIdentifiedString)
-      println(state4.toIdentifiedString)
-      println(GumTreeAlgorithm.mappings(state3, state4).map { case (from, to) => s"${from.id}->${to.id}"})
+      assert(GumTreeAlgorithm.mappings(state3, state4).map { case (from, to) => (from.id, to.id) } ==
+        Map(37 -> 50, 35 -> 48, 29 -> 42, 34 -> 47, 27 -> 40, 36 -> 49, 28 -> 41, 39 -> 52, 30 -> 43, 38 -> 51, 33 -> 46, 32 -> 45, 31 -> 44))
     }
   }
 }

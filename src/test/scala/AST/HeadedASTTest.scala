@@ -40,7 +40,7 @@ object HeadedASTTest extends TestSuite {
       assert(wrapped.toAstString() == "((+ 1 2))")
 
       val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression))
-      println(emptyAst.toAstString())
+      assert(emptyAst.toAstString() == "")
     }
   }
 }
