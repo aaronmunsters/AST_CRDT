@@ -48,4 +48,13 @@ object SchemeNode {
       case _ => Map()
     }
   }
+
+  def breadthFirstDescendants[Identity](n: SchemeNode[Identity]): Seq[SchemeNode[Identity]] = {
+    n match {
+      case schemeExpression: SchemeExpression[Identity] =>
+        schemeExpression.subexpressions ++
+          schemeExpression.subexpressions.flatMap[SchemeNode[Identity]](breadthFirstDescendants)
+      case _ => Seq()
+    }
+  }
 }
