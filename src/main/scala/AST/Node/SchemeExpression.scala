@@ -6,11 +6,9 @@ object SchemeExpression {
 
 case class SchemeExpression[Identity](id: Identity,
                                       parent: Option[Identity],
-                                      subexpressions: Seq[Identity]) extends RecursiveNode[Identity] {
-  def contains(identity: Identity): Boolean = subexpressions.contains(identity)
-
+                                      children: Seq[Identity]) extends RecursiveNode[Identity] {
   def prependChild(identity: Identity): SchemeExpression[Identity] =
-    copy(subexpressions = identity +: subexpressions)
+    copy(children = identity +: children)
 
   /**
    * Inserts the given identity at the position specified by index, causing the elements after it to move by 1
@@ -20,13 +18,20 @@ case class SchemeExpression[Identity](id: Identity,
    * @return a copy of the SchemeExpression with the newly added child
    */
   def addChild(identity: Identity, index: Int): SchemeExpression[Identity] =
-    copy(subexpressions =
-      if (index < subexpressions.length) {
-        subexpressions.take(index) ++ Seq(identity) ++ subexpressions.drop(index)
+    copy(children =
+      if (index < children.length) {
+        children.take(index) ++ Seq(identity) ++ children.drop(index)
       } else
-        subexpressions :+ identity
+        children :+ identity
     )
 
   def removeChild(identity: Identity): SchemeExpression[Identity] =
-    copy(subexpressions = subexpressions.filterNot(_ == identity))
+    copy(children = children.filterNot(_ == identity))
+
+  override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {
+    case _: SchemeExpression[_] => true
+    case _ => false
+  }
+
+  override def sameValue(n: SchemeNode[Identity]): Boolean = sameLabel(n)
 }

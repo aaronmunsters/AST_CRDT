@@ -71,7 +71,7 @@ object GumTreeAlgorithm {
     val T1Parents = SchemeNode.parentMap(T1)
     val T2Parents = SchemeNode.parentMap(T2)
 
-    var sortedA = A.toSeq.sortBy(kv => dice(T1Parents(kv._1.id), T2Parents(kv._2.id), M))
+    var sortedA = A.toSeq.sortBy { case (from, to) => dice(T1Parents(from.id), T2Parents(to.id), M)  }
     while (sortedA.nonEmpty) {
       val (t1, t2) = sortedA.head
       sortedA = sortedA.tail

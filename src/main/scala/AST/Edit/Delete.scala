@@ -16,7 +16,7 @@ case class Delete[Identity](target: Identity) extends AstEdit[Identity] {
     // 1. Remove children
     val withoutChildren = targetTree match {
       case schemeExpression: SchemeExpression[Identity] =>
-        schemeExpression.subexpressions.foldLeft(ast)((ast, toRemove) => ast.perform(Delete(toRemove)))
+        schemeExpression.children.foldLeft(ast)((ast, toRemove) => ast.perform(Delete(toRemove)))
       case _ => ast
     }
     // 2. Remove self
