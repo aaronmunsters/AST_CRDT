@@ -41,6 +41,7 @@ trait SchemeNode[Identity] {
 
   def sameValue(n: SchemeNode[Identity]): Boolean
 
-  // And maybe for debugging:
-  //  def toIdentifiedString: String
+  def withParent(identity: Identity): SchemeNode[Identity] // TODO: add support for F-bounded polymorphism
+
+  def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String
 }

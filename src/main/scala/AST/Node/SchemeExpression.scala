@@ -1,5 +1,7 @@
 package AST.Node
 
+import AST.HeadedAST
+
 object SchemeExpression {
   def empty[Identity](identity: Identity): SchemeExpression[Identity] = SchemeExpression(identity, None, Seq())
 }
@@ -34,4 +36,10 @@ case class SchemeExpression[Identity](id: Identity,
   }
 
   override def sameValue(n: SchemeNode[Identity]): Boolean = sameLabel(n)
+
+  override def withParent(identity: Identity): SchemeNode[Identity] =
+    copy(parent = Some(identity))
+
+  def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String =
+    s"(<$id>-${children.map(headedAST(_).toIdentifiedString).mkString(" ")}-<$id>)"
 }

@@ -15,4 +15,6 @@ trait LeafNode[Identity, Content] extends SchemeNode[Identity] {
   def isomorphic(myHeader: HeadedAST[Identity],
                  other: SchemeNode[Identity],
                  otherHeader: HeadedAST[Identity]): Boolean = sameLabel(other) && sameValue(other)
+
+  def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String = s"<$id>$value"
 }

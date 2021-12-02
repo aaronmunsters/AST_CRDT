@@ -14,4 +14,7 @@ case class SchemeString[Identity](id: Identity,
 
   override def sameValue(n: SchemeNode[Identity]): Boolean =
     sameLabel(n) && n.asInstanceOf[SchemeString[Identity]].value == value
+
+  override def withParent(identity: Identity): SchemeNode[Identity] =
+    copy(parent = Some(identity))
 }

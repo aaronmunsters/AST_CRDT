@@ -32,6 +32,9 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
   def toAstString(start: Option[Identity] = root): String =
     start.map(header(_).toAstString).getOrElse("")
 
+  def toIdentifiedString(start: Option[Identity] = root): String =
+    start.map(header(_).toIdentifiedString(this)).getOrElse("")
+
   def toPrettyAstString(indentation: Int = 4): String = {
     def nodeToString(depth: Int, nodeIdentity: Identity): String = {
       assert(contains(nodeIdentity))

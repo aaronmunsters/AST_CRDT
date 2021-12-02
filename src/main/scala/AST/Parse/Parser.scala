@@ -27,8 +27,11 @@ object Parser {
           .foldRight(
             HeadedAST.withRoot(SchemeExpression(getIdentity(), None, Seq()))
           )((childHeadedAst, soFar) => {
-            val updatedExpression = soFar.header(soFar.root.get).asInstanceOf[SchemeExpression[Identity]].prependChild(childHeadedAst.root.get)
-            val updatedHeader: Map[Identity, SchemeNode[Identity]] = (soFar.header ++ childHeadedAst.header).updated(updatedExpression.id, updatedExpression)
+            val updatedChild = childHeadedAst(childHeadedAst.root.get).withParent(soFar.header(soFar.root.get).id)
+            val updatedExpression = soFar.header(soFar.root.get).asInstanceOf[SchemeExpression[Identity]].prependChild(updatedChild.id)
+            val updatedHeader: Map[Identity, SchemeNode[Identity]] = (soFar.header ++ childHeadedAst.header)
+              .updated(updatedExpression.id, updatedExpression)
+              .updated(updatedChild.id, updatedChild)
             soFar.copy(header = updatedHeader)
           }))
 
