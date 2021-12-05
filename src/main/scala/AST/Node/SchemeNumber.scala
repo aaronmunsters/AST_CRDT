@@ -13,4 +13,6 @@ case class SchemeNumber[Identity](id: Identity,
 
   override def withParent(identity: Identity): SchemeNode[Identity] =
     copy(parent = Some(identity))
+
+  override def withValue(newValue: Long): SchemeNumber[Identity] = this.copy(value = newValue)
 }

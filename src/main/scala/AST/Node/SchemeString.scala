@@ -17,4 +17,6 @@ case class SchemeString[Identity](id: Identity,
 
   override def withParent(identity: Identity): SchemeNode[Identity] =
     copy(parent = Some(identity))
+
+  override def withValue(newValue: String): SchemeString[Identity] = this.copy(value = newValue)
 }

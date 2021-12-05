@@ -19,4 +19,6 @@ trait LeafNode[Identity, Content] extends SchemeNode[Identity] {
   def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String = s"<$id>$value"
 
   def withoutChildren: SchemeNode[Identity] = this
+
+  def withValue(newValue: Content): LeafNode[Identity, Content]
 }
