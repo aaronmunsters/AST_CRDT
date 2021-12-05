@@ -51,4 +51,12 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
     root.map(nodeToString(0, _)).getOrElse("")
   }
+
+  def isomorphic(other: HeadedAST[Identity]): Boolean = {
+    for {
+      myRoot <- root
+      otherRoot <- other.root
+    } if (header(myRoot) isomorphic (this, other(otherRoot), other)) return true
+    false
+  }
 }
