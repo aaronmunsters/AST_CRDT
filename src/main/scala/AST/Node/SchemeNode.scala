@@ -43,5 +43,7 @@ trait SchemeNode[Identity] {
 
   def withParent(identity: Identity): SchemeNode[Identity] // TODO: add support for F-bounded polymorphism
 
+  def withoutChildren: SchemeNode[Identity]
+
   def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String
 }

@@ -42,4 +42,6 @@ case class SchemeExpression[Identity](id: Identity,
 
   def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String =
     s"(<$id>-${children.map(headedAST(_).toIdentifiedString).mkString(" ")}-<$id>)"
+
+  def withoutChildren: SchemeNode[Identity] = copy(children = Seq())
 }
