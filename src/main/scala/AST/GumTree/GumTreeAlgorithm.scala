@@ -2,7 +2,6 @@ package AST.GumTree
 
 import AST.HeadedAST
 import AST.Node.SchemeNode.PostOrder
-import AST.Node.{LeafNode, RecursiveNode, SchemeNode}
 
 import scala.collection.mutable
 
@@ -22,9 +21,13 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
   def dice(t1_id: Identity, t2_id: Identity, mapping: mutable.Map[Identity, Identity]): Float = {
     val t1_descendants = descendants(t1_id)
     val t2_descendants = descendants(t2_id)
-    if (t1_descendants.size + t2_descendants.size == 0)
+    if (t1_descendants.isEmpty && t2_descendants.isEmpty)
       return if (isomorphic(t1_id, t2_id)) 1 else 0
-    (2 * t1_descendants.count(mapping.contains)) / (t1_descendants.size + t2_descendants.size)
+    val common_descendants =
+      for {t1_desc <- t1_descendants
+           t2_desc <- t2_descendants
+           if mapping.exists { case (`t1_desc`, `t2_desc`) => true; case _ => false }} yield (t1_desc, t2_desc)
+    (2 * common_descendants.size).toFloat / (t1_descendants.size + t2_descendants.size).toFloat
   }
 
   private def open(identity: Identity, sequence: PrioritySequence[Identity]): Unit =
@@ -103,7 +106,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
     }
     while (sortedA.nonEmpty) {
       val (t1, t2) :: tailA = sortedA
-      isomorphicDescendants(t1, t2) foreach { case (t1, t2) => add(M, (t1, t2)) }
+      ((t1, t2) +: isomorphicDescendants(t1, t2)) foreach { case (t1, t2) => add(M, (t1, t2)) }
       sortedA = tailA.filterNot { case (k, _) => k == t1 }
       sortedA = tailA.filterNot { case (_, v) => v == t2 }
     }
@@ -126,7 +129,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
         .filter(sameLabel(t1, _))
         .filter(!M.values.toSeq.contains(_))
         // 3rd condition from the paper; "have some matching descendants" is interpreted as "highest dice correlation"
-        .sortBy(dice(t1, _, M))
+        .sortBy(-dice(t1, _, M))
         .headOption
     }
 
@@ -172,6 +175,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
       topDownMappings
     )
 
+    withBottomUpMappings.update(T1, T2)
     withBottomUpMappings
   }
 }
