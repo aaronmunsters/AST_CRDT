@@ -89,6 +89,7 @@ object MinimumEditScriptTest extends TestSuite {
                     (filter (lambda (y) (gte x pivot)) rest)))))))
         """)
       assertSuccessTransformation("(a)", "((a))")
+      assertSuccessTransformation("()", "(a)")
     }
   }
 }

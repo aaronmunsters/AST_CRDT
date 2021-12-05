@@ -22,7 +22,7 @@ object Parser {
     def term[_: P] = P(number | string | identifier)
 
     def expression[_: P]: P[HeadedAST[Identity]] =
-      P("(" ~/ (term | expression).rep(1) ~ ")")
+      P("(" ~/ (term | expression).rep ~ ")")
         .map(childrenHeadedAsts => childrenHeadedAsts
           .foldRight(
             HeadedAST.withRoot(SchemeExpression(getIdentity(), None, Seq()))
