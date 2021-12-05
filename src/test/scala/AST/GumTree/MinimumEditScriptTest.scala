@@ -21,7 +21,7 @@ object MinimumEditScriptTest extends TestSuite {
     val transformed_string = from_transformed.toAstString()
     val to_string = to.toAstString()
 
-    assert(from_transformed(from_transformed.root.get) isomorphic (from_transformed, to(to.root.get), to))
+    assert(from_transformed(from_transformed.root.get) isomorphic(from_transformed, to(to.root.get), to))
     assert(transformed_string == to_string)
   }
 
@@ -51,7 +51,6 @@ object MinimumEditScriptTest extends TestSuite {
         "(begin)",
         "(define b a)"
       )
-      assertSuccessTransformation("(define)", "((define))")
 
       assertSuccessTransformation("(((c) (d)))", "(((e) (d)))")
 
@@ -89,7 +88,7 @@ object MinimumEditScriptTest extends TestSuite {
                   (quicksort
                     (filter (lambda (y) (gte x pivot)) rest)))))))
         """)
-      assertSuccessTransformation("(a)","((a))")
+      assertSuccessTransformation("(a)", "((a))")
     }
   }
 }
