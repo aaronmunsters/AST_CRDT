@@ -2,7 +2,7 @@ package AST.GumTree
 
 import AST.Edit._
 import AST.HeadedAST
-import AST.Node.RecursiveNode
+import AST.Node.{LeafNode, RecursiveNode}
 import AST.Node.SchemeNode.{BreadthFirst, PostOrder}
 
 import scala.collection.mutable
@@ -140,7 +140,7 @@ class MinimumEditScript[Identity](var T1: HeadedAST[Identity],
         // ii. If v(w) != v(x)
         if (!(w sameValue x)) {
           // A. Append UPD(w, v(x)) to E.
-          val update = UpdateValue(w.id, x)
+          val update = UpdateValue(w.id, x.asInstanceOf[LeafNode[Identity, _]].value)
           E = E :+ update
           // B. Apply UPD(w, v(x)) to E.
           T1 = T1 perform update
@@ -149,7 +149,7 @@ class MinimumEditScript[Identity](var T1: HeadedAST[Identity],
         val y_id = y_id_option.get
         if (!M.exists { case (`v_id`, `y_id`) => true; case _ => false }) {
           // A. Let z be the partner of y in M.
-          val (z_id, _) = M.find { case (_, y_id) => true; case _ => false }.get
+          val (z_id, _) = M.find { case (_, `y_id`) => true; case _ => false }.get
           val z = T1(z_id)
           // B. k <- FindPos(x)
           val k = FindPos(x_id)
