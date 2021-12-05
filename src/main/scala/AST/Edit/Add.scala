@@ -16,11 +16,11 @@ case class Add[Identity](tree: SchemeNode[Identity], parent: Option[Identity], i
 
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
     assert(!(ast contains tree.id))
-    assert(tree.parent == parent)
     parent match {
       case None =>
         HeadedAST.withRoot(tree)
       case Some(parentIdentity) =>
+        assert(ast contains parentIdentity)
         if (ast contains parentIdentity) updateParent(ast, ast.header(parentIdentity)) else ast
     }
   }

@@ -19,19 +19,23 @@ case class Move[Identity](child: Identity, newParent: Identity, index: Int) exte
     assert(ast contains newParent)
     assert(!(ast hasRoot child))
     assert(!ast.isAncestorOf(child, newParent))
-    assert(!ast.isAncestorOf(newParent, child))
 
     val childTree = ast.header(child)
     val newParentTree = ast.header(newParent)
     val oldParentTree = ast.header(childTree.parent.get)
 
+    val moveInSameParent = newParentTree == oldParentTree
+
     val updatedNewParent = newParentTree match {
-      case expression: SchemeExpression[Identity] => expression.addChild(child, index)
+      case expression: SchemeExpression[Identity] =>
+        val (before, after) = expression.children.filterNot(_ == child).splitAt(index)
+        expression.copy(children = before ++ Seq(child) ++ after)
       case old => old
     }
 
     val updatedOldParent = oldParentTree match {
-      case expression: SchemeExpression[Identity] => expression.removeChild(child)
+      case expression: SchemeExpression[Identity] if !moveInSameParent => expression.removeChild(child)
+      case expression: SchemeExpression[Identity] if moveInSameParent => updatedNewParent
       case old => old
     }
 
