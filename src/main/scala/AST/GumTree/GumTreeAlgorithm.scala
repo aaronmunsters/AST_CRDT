@@ -134,7 +134,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
     }
 
     postOrder(T1_id).foreach(t1 => {
-      if (!M.contains(t1) && descendants(t1).exists(M.contains)) {
+      if (!M.contains(t1) && (descendants(t1).exists(M.contains) || descendants(t1).isEmpty)) {
         candidate(t1, M) match {
           case Some(t2) if dice(t1, t2, M) >= minDice =>
             M.update(t1, t2)
