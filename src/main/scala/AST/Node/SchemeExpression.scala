@@ -1,6 +1,7 @@
 package AST.Node
 
 import AST.HeadedAST
+import AST.Node.SchemeNode.RecursiveNode
 
 object SchemeExpression {
   def empty[Identity](identity: Identity): SchemeExpression[Identity] = SchemeExpression(identity, None, Seq())

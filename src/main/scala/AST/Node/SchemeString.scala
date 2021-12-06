@@ -1,6 +1,7 @@
 package AST.Node
 
 import AST.HeadedAST
+import AST.Node.SchemeNode.LeafNode
 
 case class SchemeString[Identity](id: Identity,
                                   parent: Option[Identity],

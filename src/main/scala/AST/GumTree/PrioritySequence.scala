@@ -1,7 +1,8 @@
 package AST.GumTree
 
 import AST.HeadedAST
-import AST.Node.{RecursiveNode, SchemeNode}
+import AST.Node.SchemeNode
+import AST.Node.SchemeNode.RecursiveNode
 
 import scala.collection.mutable
 

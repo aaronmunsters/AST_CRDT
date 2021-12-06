@@ -39,7 +39,7 @@ object HeadedASTTest extends TestSuite {
       val wrapped = astWithSimpleAddition.perform(Wrap(plusWrapExpression.id, topLevelExpression))
       assert(wrapped.toAstString() == "((+ 1 2))")
 
-      val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression))
+      val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression.id))
       assert(emptyAst.toAstString() == "")
     }
   }

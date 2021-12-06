@@ -1,7 +1,7 @@
 package AST.Edit
 
 import AST.HeadedAST
-import AST.Node.{RecursiveNode, SchemeExpression, SchemeIdentifier, SchemeNumber, SchemeString}
+import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
 
 case class Move[Identity](child: Identity, newParent: Identity, index: Int) extends AstEdit[Identity] {
 

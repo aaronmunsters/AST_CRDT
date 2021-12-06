@@ -2,8 +2,7 @@ package AST.GumTree
 
 import AST.Edit._
 import AST.HeadedAST
-import AST.Node.{LeafNode, RecursiveNode}
-import AST.Node.SchemeNode.{BreadthFirst, PostOrder}
+import AST.Node.SchemeNode._
 
 import scala.collection.mutable
 

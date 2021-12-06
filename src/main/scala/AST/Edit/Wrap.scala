@@ -1,6 +1,7 @@
 package AST.Edit
 import AST.HeadedAST
-import AST.Node.{RecursiveNode, SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
+import AST.Node.SchemeNode.RecursiveNode
+import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber, SchemeString}
 
 case class Wrap[Identity](child: Identity, parent: RecursiveNode[Identity]) extends AstEdit[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {

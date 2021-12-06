@@ -1,5 +1,7 @@
 package AST.Node
 
+import AST.Node.SchemeNode.LeafNode
+
 case class SchemeIdentifier[Identity](id: Identity,
                                       parent: Option[Identity],
                                       value: String) extends LeafNode[Identity, String] {

@@ -1,5 +1,6 @@
 package AST
 
+import AST.Node.SchemeNode.LeafNode
 import AST.Node._
 
 object HeadedAST {

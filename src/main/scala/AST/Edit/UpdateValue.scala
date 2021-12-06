@@ -1,7 +1,7 @@
 package AST.Edit
 
 import AST.HeadedAST
-import AST.Node.{LeafNode, SchemeIdentifier, SchemeNumber, SchemeString}
+import AST.Node.SchemeNode.LeafNode
 
 case class UpdateValue[Value, Identity](target: Identity, value: Value) extends AstEdit[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
