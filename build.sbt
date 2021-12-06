@@ -22,3 +22,6 @@ testFrameworks += new TestFramework("utest.runner.Framework")
 
 // Adding support for parsing
 libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3"
+
+// Adding support for serialization
+libraryDependencies += "io.suzaku" %%% "boopickle" % "1.4.0"

@@ -1,17 +1,25 @@
 package AST
 
-import AST.Edit.AstEdit
-import AST.Node.SchemeNode
+class ConflictFreeReplicatedAst[Identity, EditIdentity](start: HeadedAST[Identity],
+                                                        implicit val ordering: Ordering[EditIdentity],
+                                                        transmitter: TX[ReplicatedOperation[Identity, EditIdentity]]) {
 
-case class ConflictFreeReplicatedAst[Identity](root: SchemeNode[Identity]) {
-  def update(operation: AstEdit[Identity]): ConflictFreeReplicatedAst[Identity] = {
-    null
+  // replicatedOperationOrdering --> means to order the operations
+  implicit val replicatedOperationOrdering: Ordering[ReplicatedOperation[Identity, EditIdentity]] = Ordering.by(_.editIdentity)
+  // the set of operations that, together with the `start`, allow us to construct the replicated AST
+  var operations: Seq[ReplicatedOperation[Identity, EditIdentity]] = Seq()
+
+  // Gets called whenever a local change takes place
+  def update(newOperations: Seq[ReplicatedOperation[Identity, EditIdentity]]): Unit = {
+    operations = (operations ++ newOperations).sorted
+    transmitter.publish(newOperations)
   }
 
-  def query: SchemeNode[Identity] = root
+  // Gets called whenever the data structure needs to be viewed
+  def query: HeadedAST[Identity] =
+    operations.map(_.edit).foldLeft(start)((ast, op) => op perform ast)
 
-
-  def merge(operation: AstEdit[Identity]): ConflictFreeReplicatedAst[Identity] = {
-    null
-  }
+  // Gets called whenever new operations come in over the wire
+  def merge(newOperations: Seq[ReplicatedOperation[Identity, EditIdentity]]): Unit =
+    operations = operations ++ newOperations
 }
