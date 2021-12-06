@@ -3,7 +3,7 @@ package AST.Edit
 import AST.HeadedAST
 import AST.Node.SchemeNode.LeafNode
 
-case class UpdateValue[Value, Identity](target: Identity, value: Value) extends AstEdit[Identity] {
+case class UpdateValue[Value, Identity](target: Identity, value: Value) extends AstEdit.UpdateValue[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
     ast.header.get(target) match {
       case None => ast

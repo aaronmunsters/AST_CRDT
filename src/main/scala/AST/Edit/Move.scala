@@ -3,7 +3,7 @@ package AST.Edit
 import AST.HeadedAST
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
 
-case class Move[Identity](child: Identity, newParent: Identity, index: Int) extends AstEdit[Identity] {
+case class Move[Identity](child: Identity, newParent: Identity, index: Int) extends AstEdit.Move[Identity] {
 
   // What needs to happen when moving tree A to tree B:
   //  - node A self: parent must be updated

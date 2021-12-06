@@ -6,7 +6,7 @@ object Delete {
   def apply[Identity](node: SchemeNode[Identity]): Delete[Identity] = Delete(node.id)
 }
 
-case class Delete[Identity](target: Identity) extends AstEdit[Identity] {
+case class Delete[Identity](target: Identity) extends AstEdit.Delete[Identity] {
   override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = {
     if(ast hasRoot target) return HeadedAST.empty
     if(! (ast contains target)) return ast

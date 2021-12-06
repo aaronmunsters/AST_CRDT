@@ -3,7 +3,7 @@ package AST.Edit
 import AST.HeadedAST
 import AST.Node.{SchemeExpression, SchemeNode}
 
-case class Add[Identity](tree: SchemeNode[Identity], parent: Option[Identity], index: Int) extends AstEdit[Identity] {
+case class Add[Identity](tree: SchemeNode[Identity], parent: Option[Identity], index: Int) extends AstEdit.Add[Identity] {
   private def updateParent(ast: HeadedAST[Identity], parentTree: SchemeNode[Identity]): HeadedAST[Identity] = {
     parentTree match {
       case expression: SchemeExpression[Identity] =>
