@@ -32,10 +32,8 @@ object SerializableAstEdit {
   def astEditToSerializableEdit(astEdit: AstEdit[Int]): SerializableAstEdit = astEdit match {
     case delete: AstEdit.Delete[Int] => Delete(delete.target)
     case move: AstEdit.Move[Int] => Move(move.child, move.newParent, move.index)
-    case value: AstEdit.UpdateValue[Int] => value.value match {
-      case s: String => UpdateString(value.target, s.toCharArray)
-      case n: Long => UpdateNumber(value.target, n)
-    }
+    case value: AstEdit.UpdateNumber[Int] => UpdateNumber(value.target, value.value)
+    case value: AstEdit.UpdateString[Int] => UpdateString(value.target, value.value.toCharArray)
     case add: AstEdit.Add[Int] =>
       val serTree = add.tree match {
         case expression: SchemeExpression[Int] => AstExpression(expression.id, expression.parent, expression.children.toArray)
@@ -47,10 +45,10 @@ object SerializableAstEdit {
   }
 
   def serializedEditToEdit(serEdit: SerializableAstEdit): AstEdit[Int] = serEdit match {
-    case Delete(target) => Edit.Delete(target)
-    case Move(child, newParent, index) => Edit.Move(child, newParent, index)
-    case UpdateString(target, value) => Edit.UpdateValue(target, value.mkString(""))
-    case UpdateNumber(target, value) => Edit.UpdateValue(target, value)
+    case Delete(target) => AST.Edit.AstEdit.Delete(target)
+    case Move(child, newParent, index) => AST.Edit.AstEdit.Move(child, newParent, index)
+    case UpdateString(target, value) => UpdateValue(target, value.mkString(""))
+    case UpdateNumber(target, value) => UpdateValue(target, value)
     case Add(tree, parent, index) =>
       val hydratedTree = tree match {
         case AstExpression(id, parent, children) => SchemeExpression(id, parent, children)
@@ -58,7 +56,7 @@ object SerializableAstEdit {
         case AstNumber(id, parent, value) => SchemeNumber(id, parent, value)
         case AstString(id, parent, value) => SchemeString(id, parent, value.mkString(""))
       }
-      Edit.Add(hydratedTree, parent, index)
+      AST.Edit.AstEdit.Add(hydratedTree, parent, index)
   }
 }
 

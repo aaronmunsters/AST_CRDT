@@ -1,6 +1,6 @@
 package AST.Node
 
-import AST.Node.SchemeNode.{BreadthFirst, PostOrder, PreOrder, TraverseOrder}
+import AST.Node.SchemeNode._
 import AST.Parse.Parser
 import utest.{TestSuite, Tests, test}
 

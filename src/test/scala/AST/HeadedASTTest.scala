@@ -1,6 +1,6 @@
 package AST
 
-import AST.Edit.{Add, Delete}
+import AST.Edit.Add
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber}
 import utest._
 
@@ -9,7 +9,8 @@ object HeadedASTTest extends TestSuite {
   var uniqueId: Identity = 0
 
   private def getIdentity = {
-    uniqueId += 1; uniqueId
+    uniqueId += 1
+    uniqueId
   }
 
   override def tests: Tests = Tests {
@@ -31,12 +32,12 @@ object HeadedASTTest extends TestSuite {
 
       assert(astExpectedString == astWithSimpleAddition.toAstString())
 
-      assert(astWithSimpleAddition.perform(Delete(plusIdentifier.id)).toAstString() == "(1 2)")
+      assert(astWithSimpleAddition.perform(AST.Edit.AstEdit.Delete(plusIdentifier.id)).toAstString() == "(1 2)")
 
       val topLevelExpression = SchemeExpression(getIdentity, None, Seq(plusWrapExpression.id))
       // TODO: add type-level support for recursive nodes
 
-      val emptyAst = astWithSimpleAddition.perform(Delete(plusWrapExpression.id))
+      val emptyAst = astWithSimpleAddition.perform(AST.Edit.AstEdit.Delete(plusWrapExpression.id))
       assert(emptyAst.toAstString() == "")
     }
   }

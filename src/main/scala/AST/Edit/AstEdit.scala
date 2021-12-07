@@ -8,25 +8,26 @@ sealed trait AstEdit[Identity] {
 }
 
 object AstEdit {
-  trait Add[Identity] extends AstEdit[Identity] {
-    val tree: SchemeNode[Identity]
-    val parent: Option[Identity]
-    val index: Int
+  case class Add[Identity](tree: SchemeNode[Identity], parent: Option[Identity], index: Int) extends AstEdit[Identity] {
+    override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = AST.Edit.Add.perform(ast, this)
   }
 
-  trait Delete[Identity] extends AstEdit[Identity] {
-    val target: Identity
+  case class Delete[Identity](target: Identity) extends AstEdit[Identity] {
+    override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] = AST.Edit.Delete.perform(ast, this)
   }
 
-  trait Move[Identity] extends AstEdit[Identity] {
-    val child: Identity
-    val newParent: Identity
-    val index: Int
-
+  case class Move[Identity](child: Identity, newParent: Identity, index: Int) extends AstEdit[Identity] {
+    def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] =
+      AST.Edit.Move.perform(ast, this)
   }
 
-  trait UpdateValue[Identity] extends AstEdit[Identity] {
-    val target: Identity
-    val value: Any
+  case class UpdateNumber[Identity](target: Identity, value: Long) extends AstEdit[Identity] {
+    override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] =
+      AST.Edit.UpdateValue.perform(ast, this)
+  }
+
+  case class UpdateString[Identity](target: Identity, value: String) extends AstEdit[Identity] {
+    override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] =
+      AST.Edit.UpdateValue.perform(ast, this)
   }
 }

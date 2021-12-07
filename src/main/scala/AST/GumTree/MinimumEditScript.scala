@@ -1,6 +1,7 @@
 package AST.GumTree
 
-import AST.Edit._
+import AST.Edit.AstEdit
+import AST.Edit.AstEdit._
 import AST.HeadedAST
 import AST.Node.SchemeNode._
 
@@ -139,7 +140,7 @@ class MinimumEditScript[Identity](var T1: HeadedAST[Identity],
         // ii. If v(w) != v(x)
         if (!(w sameValue x)) {
           // A. Append UPD(w, v(x)) to E.
-          val update = UpdateValue(w.id, x.asInstanceOf[LeafNode[Identity, _]].value)
+          val update = AST.Edit.UpdateValue(w.id, x.asInstanceOf[LeafNode[Identity, _]].value)
           E = E :+ update
           // B. Apply UPD(w, v(x)) to E.
           T1 = T1 perform update
