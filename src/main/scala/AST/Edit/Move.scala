@@ -7,18 +7,13 @@ import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, S
 object Move {
 
   def perform[Identity](ast: HeadedAST[Identity], move: Move[Identity]): HeadedAST[Identity] = move match {
-    // What needs to happen when moving tree A to tree B:
-    //  - node A self: parent must be updated
-    //  - node B self: list of children must be updated
-    //  - Parent of A: list of children must be updated
     case AST.Edit.AstEdit.Move(child, newParent, index) =>
       // Preconditions:
       // 1) both nodes are in the ast
+      assert((ast contains child) && (ast contains newParent))
       // 2) the child is not the root
-      // 3) the child and parent have no ancestor relation
-      assert(ast contains child)
-      assert(ast contains newParent)
       assert(!(ast hasRoot child))
+      // 3) the child is no ancestor of the new parent
       assert(!ast.isAncestorOf(child, newParent))
 
       val childTree = ast.header(child)
@@ -36,7 +31,7 @@ object Move {
 
       val updatedOldParent = oldParentTree match {
         case expression: SchemeExpression[Identity] if !moveInSameParent => expression.removeChild(child)
-        case expression: SchemeExpression[Identity] if moveInSameParent => updatedNewParent
+        case _: SchemeExpression[Identity] if moveInSameParent => updatedNewParent
         case old => old
       }
 

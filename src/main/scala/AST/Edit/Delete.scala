@@ -20,12 +20,10 @@ object Delete {
         case _ => ast
       }
       // 2. Remove self
-      withoutChildren.header(targetTree.parent.get) match {
-        case expression: SchemeExpression[Identity] =>
-          val updatedExpression = expression.removeChild(target)
-          val updatedHeader = ast.header.updated(updatedExpression.id, updatedExpression).removed(target)
-          ast.copy(header = updatedHeader)
-        case _ => ast // TODO: throw error!
-      }
+      val parent = withoutChildren.header(targetTree.parent.get)
+      assert(parent.isInstanceOf[SchemeExpression[Identity]])
+      val updatedExpression = parent.asInstanceOf[SchemeExpression[Identity]].removeChild(target)
+      val updatedHeader = ast.header.updated(updatedExpression.id, updatedExpression).removed(target)
+      ast.copy(header = updatedHeader)
   }
 }

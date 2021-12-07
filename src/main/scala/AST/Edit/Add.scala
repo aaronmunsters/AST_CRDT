@@ -6,22 +6,15 @@ import AST.Node.{SchemeExpression, SchemeNode}
 
 object Add {
   def perform[Identity](ast: HeadedAST[Identity], add: Add[Identity]): HeadedAST[Identity] = add match {
-    case AST.Edit.AstEdit.Add(tree, parent, index) => assert(!(ast contains tree.id))
-      parent match {
-        case None =>
-          HeadedAST.withRoot(tree)
-        case Some(parentIdentity) =>
-          assert(ast contains parentIdentity)
-          if (!(ast contains parentIdentity))
-            ast
-          else
-            ast.header(parentIdentity) match {
-              case expression: SchemeExpression[Identity] =>
-                val updatedExpression = expression.addChild(tree.id, index)
-                val updatedHeader = ast.header.updated(ast.header(parentIdentity).id, updatedExpression).updated(tree.id, tree)
-                ast.copy(header = updatedHeader)
-              case _ => ast
-            }
+    case AST.Edit.AstEdit.Add(tree, None, _) => HeadedAST.withRoot(tree)
+    case AST.Edit.AstEdit.Add(tree, Some(parentIdentity), index) =>
+      assert(!(ast contains tree.id))
+      assert(ast contains parentIdentity)
+      ast.header(parentIdentity) match {
+        case expression: SchemeExpression[Identity] =>
+          val updatedExpression = expression.addChild(tree.id, index)
+          val updatedHeader = ast.header.updated(ast.header(parentIdentity).id, updatedExpression).updated(tree.id, tree)
+          ast.copy(header = updatedHeader)
       }
   }
 
