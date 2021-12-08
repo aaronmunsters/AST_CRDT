@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>The Scala.js Tutorial</title>
+    <link
+            rel="stylesheet"
+            data-name="vs/editor/editor.main"
+            href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.min.css"
+    />
 </head>
 <body>
 <div>
     ID:
     <span id="peerId"></span>
 </div>
-<label for="source-code-area">Source Code</label><textarea id="source-code-area" style="display: block"
-                                                           oninput="sourceCodeChange()"></textarea>
 <label for="remote-peer-id">Remote ID</label><input type="text" id="remote-peer-id"/>
 <button onclick="connectRemotePeer()">Connect</button>
+<div id="container" style="width: 800px; height: 600px; border: 1px solid grey"></div>
 <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 <script>
     const peerIdSpan = document.getElementById('peerId');
@@ -33,6 +37,26 @@
 
     function publish(data) {
         connections.forEach((connection) => connection.send(data));
+    }
+</script>
+<!-- src: https://github.com/microsoft/monaco-editor/blob/main/samples/browser-script-editor/index.html -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/loader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.nls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/basic-languages/scheme/scheme.min.js"></script>
+<script>
+    var editor = monaco.editor.create(document.getElementById('container'), {
+        language: 'scheme'
+    });
+
+    // src: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ITextModel.html#onDidChangeContent
+    editor.getModel().onDidChangeContent((_) => {
+        // src: https://stackoverflow.com/a/38092508
+        sourceCodeChange(editor.getValue());
+    });
+
+    function updateSourceCode(newSourceCode) {
+        editor.setValue(newSourceCode)
     }
 </script>
 <!-- Include Scala.js compiled code -->

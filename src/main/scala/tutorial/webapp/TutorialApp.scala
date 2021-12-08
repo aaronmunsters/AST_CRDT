@@ -5,8 +5,6 @@ import AST.GumTree.{GumTreeAlgorithm, MinimumEditScript}
 import AST.Node.SchemeExpression
 import AST.Parse.Parser
 import AST._
-import org.scalajs.dom.document
-import org.scalajs.dom.html.TextArea
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExportTopLevel, JSGlobal}
@@ -21,6 +19,10 @@ object TutorialApp {
   @JSGlobal("publish")
   def global_Publish(v: Any): Unit = js.native
 
+  @js.native
+  @JSGlobal("updateSourceCode")
+  def updateSourceCode(newSourceCode: String): Unit = js.native
+
   def main(args: Array[String]): Unit = {}
 
   @JSExportTopLevel("receiveRemoteUpdate")
@@ -31,7 +33,7 @@ object TutorialApp {
     local_replica.merge(Seq(operation))
     val after = local_replica.query
     if (!(before isomorphic after))
-      sourceCodeContainer.value = after.toPrettyAstString()
+      updateSourceCode(after.toPrettyAstString())
   }
 
   object transmitter extends TX[ReplicatedOperation[Int, (Int, Int)]] {
@@ -73,18 +75,14 @@ object TutorialApp {
     if (replicableEdits.nonEmpty) local_replica.update(replicableEdits)
   }
 
-  private val sourceCodeContainer: TextArea = document.getElementById("source-code-area").asInstanceOf[TextArea]
-
   @JSExportTopLevel("sourceCodeChange")
-  def sourceCodeChange(): Unit = {
-
-    val sourceCode = sourceCodeContainer.value
-    Parser.parseSchemeSmall(sourceCode, getIdentity).foreach(updated => {
+  def sourceCodeChange(changedSource: String): Unit = {
+    Parser.parseSchemeSmall(changedSource, getIdentity).foreach(updated => {
       val before = local_replica.query
       updateLocalAst(updated)
       val after = local_replica.query
       if (!(before isomorphic after))
-        sourceCodeContainer.value = after.toPrettyAstString()
+        updateSourceCode(after.toPrettyAstString())
     })
   }
 }
