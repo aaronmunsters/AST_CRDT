@@ -42,7 +42,7 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
       val subtree = header(nodeIdentity) match {
         case expression: SchemeExpression[Identity] =>
           if (expression.children.isEmpty) "()" else {
-            val head :: tail = expression.children
+            val head +: tail = expression.children
             s"(${(nodeToString(0, head) +: tail.map(nodeToString(depth + indentation, _))).mkString("\n")})"
           }
         case node: LeafNode[_, _] => node.toAstString(this)
