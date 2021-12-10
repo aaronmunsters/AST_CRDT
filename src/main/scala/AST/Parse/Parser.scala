@@ -9,23 +9,23 @@ object Parser {
   def parseSchemeSmall[Identity](source: String, getIdentity: () => Identity): Option[HeadedAST[Identity]] = {
 
     def identifier[_: P] =
-      P(CharsWhileIn("a-zA-Z_=!@#$%^&*=+'\\/<>").!)
-        .map(identifier => HeadedAST.withRoot(SchemeIdentifier(getIdentity(), None, identifier)))
+      P(Index ~ CharsWhileIn("a-zA-Z_=!@#$%^&*=+'\\/<>").! ~ Index)
+        .map { case (start, identifier, end) => HeadedAST.withRoot(SchemeIdentifier(start, end, getIdentity(), None, identifier))}
 
     def string[_: P] =
-      P("\"" ~ CharsWhile(_ != '\"').rep.! ~ "\"")
-        .map(string => HeadedAST.withRoot(SchemeString(getIdentity(), None, string)))
+      P(Index ~ "\"" ~ CharsWhile(_ != '\"').rep.! ~ "\"" ~ Index)
+        .map { case (start, string, end) => HeadedAST.withRoot(SchemeString(start, end, getIdentity(), None, string)) }
 
-    def number[_: P] = P(CharsWhileIn("0-9").!.map(
-      number => HeadedAST.withRoot(SchemeNumber(getIdentity(), None, number.toInt))))
+    def number[_: P] = P(Index ~ CharsWhileIn("0-9").! ~ Index)
+      .map { case (start, number, end) => HeadedAST.withRoot(SchemeNumber(start, end, getIdentity(), None, number.toInt)) }
 
     def term[_: P] = P(number | string | identifier)
 
     def expression[_: P]: P[HeadedAST[Identity]] =
-      P("(" ~/ (term | expression).rep ~ ")")
-        .map(childrenHeadedAsts => childrenHeadedAsts
+      P(Index ~ "(" ~/ (term | expression).rep ~ ")" ~ Index)
+        .map { case (start, childrenHeadedAsts, end) => childrenHeadedAsts
           .foldRight(
-            HeadedAST.withRoot(SchemeExpression(getIdentity(), None, Seq()))
+            HeadedAST.withRoot(SchemeExpression(start, end, getIdentity(), None, Seq()))
           )((childHeadedAst, soFar) => {
             val updatedChild = childHeadedAst(childHeadedAst.root.get).withParent(soFar.header(soFar.root.get).id)
             val updatedExpression = soFar.header(soFar.root.get).asInstanceOf[SchemeExpression[Identity]].prependChild(updatedChild.id)
@@ -33,7 +33,7 @@ object Parser {
               .updated(updatedExpression.id, updatedExpression)
               .updated(updatedChild.id, updatedChild)
             soFar.copy(header = updatedHeader)
-          }))
+          }) }
 
     def program[_: P] = P(Start ~ expression ~ End)
 

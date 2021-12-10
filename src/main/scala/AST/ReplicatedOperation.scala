@@ -51,10 +51,10 @@ object SerializableAstEdit {
     case UpdateNumber(target, value) => UpdateValue(target, value)
     case Add(tree, parent, index) =>
       val hydratedTree = tree match {
-        case AstExpression(id, parent, children) => SchemeExpression(id, parent, children)
-        case AstIdentifier(id, parent, value) => SchemeIdentifier(id, parent, value.mkString(""))
-        case AstNumber(id, parent, value) => SchemeNumber(id, parent, value)
-        case AstString(id, parent, value) => SchemeString(id, parent, value.mkString(""))
+        case AstExpression(id, parent, children) => SchemeExpression(0, 0, id, parent, children)
+        case AstIdentifier(id, parent, value) => SchemeIdentifier(0, 0, id, parent, value.mkString(""))
+        case AstNumber(id, parent, value) => SchemeNumber(0, 0, id, parent, value)
+        case AstString(id, parent, value) => SchemeString(0, 0, id, parent, value.mkString(""))
       }
       AST.Edit.AstEdit.Add(hydratedTree, parent, index)
   }

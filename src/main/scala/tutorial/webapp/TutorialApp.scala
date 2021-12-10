@@ -62,7 +62,7 @@ object TutorialApp {
     (lastEditCount, deviceIdentity)
   }
   private val local_replica = new ConflictFreeReplicatedAst[Int, (Int, Int)](
-    HeadedAST.withRoot(SchemeExpression(0, None, Seq())),
+    HeadedAST.withRoot(SchemeExpression.empty(0, 0, 0)),
     replicatedOperationOrdering,
     transmitter
   )
@@ -76,13 +76,19 @@ object TutorialApp {
   }
 
   @JSExportTopLevel("sourceCodeChange")
-  def sourceCodeChange(changedSource: String): Unit = {
+  def sourceCodeChange(position: Int, changedSource: String): Int = {
     Parser.parseSchemeSmall(changedSource, getIdentity).foreach(updated => {
       val before = local_replica.query
       updateLocalAst(updated)
       val after = local_replica.query
       if (!(before isomorphic after))
         updateSourceCode(after.toPrettyAstString())
+
     })
+    var id = 0
+    val uqId = () => {id+=1; id}
+    local_replica.query.idAtConsidering(position, changedSource, uqId)
+      .map { case (identity, offset) => local_replica.query.startPos(identity) + offset }
+      .getOrElse(0)
   }
 }

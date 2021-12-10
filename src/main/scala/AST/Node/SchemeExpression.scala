@@ -4,10 +4,13 @@ import AST.HeadedAST
 import AST.Node.SchemeNode.RecursiveNode
 
 object SchemeExpression {
-  def empty[Identity](identity: Identity): SchemeExpression[Identity] = SchemeExpression(identity, None, Seq())
+  def empty[Identity](start: Int, end: Int, identity: Identity): SchemeExpression[Identity] =
+    SchemeExpression(start, end, identity, None, Seq())
 }
 
-case class SchemeExpression[Identity](id: Identity,
+case class SchemeExpression[Identity](start: Int,
+                                      end: Int,
+                                      id: Identity,
                                       parent: Option[Identity],
                                       children: Seq[Identity]) extends RecursiveNode[Identity] {
   def prependChild(identity: Identity): SchemeExpression[Identity] =

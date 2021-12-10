@@ -4,6 +4,8 @@ import AST.HeadedAST
 import AST.Node.SchemeNode.TraverseOrder
 
 sealed trait SchemeNode[Identity] {
+  val start: Int
+  val end: Int
   val id: Identity
   val parent: Option[Identity]
 

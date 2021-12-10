@@ -2,7 +2,9 @@ package AST.Node
 
 import AST.Node.SchemeNode.LeafNode
 
-case class SchemeIdentifier[Identity](id: Identity,
+case class SchemeIdentifier[Identity](start: Int,
+                                      end: Int,
+                                      id: Identity,
                                       parent: Option[Identity],
                                       value: String) extends LeafNode[Identity, String] {
   override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {

@@ -49,10 +49,36 @@
         language: 'scheme'
     });
 
+    let lastSource;
+
     // src: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ITextModel.html#onDidChangeContent
     editor.getModel().onDidChangeContent((_) => {
-        // src: https://stackoverflow.com/a/38092508
-        sourceCodeChange(editor.getValue());
+        setTimeout(() => {
+            // src: https://stackoverflow.com/a/38092508
+            const changedSource = editor.getValue();
+
+            if(lastSource === changedSource) return;
+            lastSource = changedSource;
+
+            // src: https://stackoverflow.com/a/50093042
+            const position = editor.getModel().getOffsetAt(editor.getPosition())
+            // update code & query new position
+            const newPosition = sourceCodeChange(position, changedSource)
+
+            const newSource = editor.getValue();
+            const textAsArr = newSource.split("");
+            const skippingC = textAsArr.slice(0,newPosition);
+            const lineNumber = 1 + skippingC.filter(c => c === "\n").length;
+            const column = newSource.slice(0, newPosition).split("\n").slice(-1)[0].length + 1;
+            const newPosObj = {column, lineNumber};
+
+            const before = changedSource.slice(0, position).concat("|").concat(changedSource.slice(position));
+            const after = newSource.slice(0, newPosition).concat("|").concat(newSource.slice(newPosition));
+            console.log(`Before at ${position}\n${before}`);
+            console.log(`After at ${newPosition}\n${after}`);
+            console.log(newPosObj);
+            editor.setPosition(newPosObj);
+        }, 0)
     });
 
     function updateSourceCode(newSourceCode) {

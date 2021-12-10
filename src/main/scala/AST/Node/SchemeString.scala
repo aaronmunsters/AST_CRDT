@@ -3,7 +3,9 @@ package AST.Node
 import AST.HeadedAST
 import AST.Node.SchemeNode.LeafNode
 
-case class SchemeString[Identity](id: Identity,
+case class SchemeString[Identity](start: Int,
+                                  end: Int,
+                                  id: Identity,
                                   parent: Option[Identity],
                                   value: String) extends LeafNode[Identity, String] {
   override def toAstString(implicit headedAST: HeadedAST[Identity]): String = '"' + value + '"'

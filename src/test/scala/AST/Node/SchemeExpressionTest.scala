@@ -15,7 +15,7 @@ object SchemeExpressionTest extends TestSuite {
 
   override def tests: Tests = Tests {
     test("SchemeExpression operations") {
-      val expression = SchemeExpression[Double](0, None, Seq(1, 2, 3, 4))
+      val expression = SchemeExpression[Double](0, 0, 0, None, Seq(1, 2, 3, 4))
 
       test("`contains` should indicate if subexpressions contain identities") {
         assert(expression.contains(1) && expression.contains(4))
@@ -39,7 +39,7 @@ object SchemeExpressionTest extends TestSuite {
         val Some(root_id) = tree.root
 
         def get_identifiers_in(order: TraverseOrder) = {
-          val sample_identifier = SchemeIdentifier(idGenerator(), None, "empty")
+          val sample_identifier = SchemeIdentifier(0, 0 ,idGenerator(), None, "empty")
           tree(root_id)
             .descendants(order)
             .map(tree(_))
