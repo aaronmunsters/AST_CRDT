@@ -28,6 +28,7 @@ object SchemeStringTest extends TestSuite {
       }
     }
 
+    // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
       val string = SchemeString(0, 1, 2, Some(3), "123456789")
       assert(SchemeString.unapply(string).get == (0, 1, 2, Some(3), "123456789"))

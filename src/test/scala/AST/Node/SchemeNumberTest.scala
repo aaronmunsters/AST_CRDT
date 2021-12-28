@@ -24,6 +24,7 @@ object SchemeNumberTest extends TestSuite {
       }
     }
 
+    // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
       val number = SchemeNumber(0, 1, 2, Some(3), 123456789)
       assert(SchemeNumber.unapply(number).get == (0, 1, 2, Some(3), 123456789))

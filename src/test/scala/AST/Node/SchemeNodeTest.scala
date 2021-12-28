@@ -4,17 +4,10 @@ import AST.Edit.AstEdit.Add
 import AST.HeadedAST
 import AST.Node.SchemeNode._
 import AST.Parse.Parser
+import AST.TestUtils.getIdGenerator
 import utest.{TestSuite, Tests, test}
 
 object SchemeNodeTest extends TestSuite {
-  private def getIdGenerator = {
-    var id = 0
-    () => {
-      id += 1
-      id
-    }
-  }
-
   override def tests: Tests = Tests {
     test("SchemeNodeTest operations") {
       val leaf: LeafNode[Int, Long] =
@@ -26,8 +19,7 @@ object SchemeNodeTest extends TestSuite {
 
       test("Measuring the height of a node") {
         assert(leaf.height == 1)
-        assert(recursive.height == 1)
-        // assert(recursive.height == 2) // TODO
+        assert(recursive.height == 2)
       }
 
       test("Order of descendants should be computed correctly") {

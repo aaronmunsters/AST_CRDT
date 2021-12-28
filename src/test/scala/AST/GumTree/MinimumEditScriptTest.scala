@@ -1,15 +1,12 @@
 package AST.GumTree
 
 import AST.Parse.Parser
+import AST.TestUtils.getIdGenerator
 import utest.{TestSuite, Tests, test}
 
 object MinimumEditScriptTest extends TestSuite {
   def assertSuccessTransformation(from_source: String, to_source: String): Unit = {
-    var identity = 0
-    val getIdentity = () => {
-      identity += 1
-      identity
-    }
+    val getIdentity = getIdGenerator
     val from = Parser.parseSchemeSmall(from_source, getIdentity).get
     val to = Parser.parseSchemeSmall(to_source, getIdentity).get
 
@@ -26,6 +23,10 @@ object MinimumEditScriptTest extends TestSuite {
   }
 
   override def tests: Tests = Tests {
+    test("Basic") {
+      assertSuccessTransformation("((a))", "(a)")
+    }
+
     test("transformations") {
       assertSuccessTransformation(
         "(define a 10)",
@@ -90,6 +91,7 @@ object MinimumEditScriptTest extends TestSuite {
         """)
       assertSuccessTransformation("(a)", "((a))")
       assertSuccessTransformation("()", "(a)")
+      assertSuccessTransformation("(a)", "((a) ((((a)))) (a))")
     }
   }
 }

@@ -167,7 +167,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
       scala.collection.mutable.Map.empty[Identity, Identity]
     )
 
-    val withBottomUpMappings = bottomUp(
+    val result = bottomUp(
       T1,
       T2,
       topDownMinDice,
@@ -175,7 +175,10 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
       topDownMappings
     )
 
-    withBottomUpMappings.update(T1, T2)
-    withBottomUpMappings
+    // Ensure the outermost parentheses match
+    result.update(T1, T2)
+    result
+      .filterNot { case (`T1`, tn) if tn != T2 => true; case _ => false }
+      .filterNot { case (tn, `T2`) if T1 != tn => true; case _ => false }
   }
 }

@@ -1,103 +1,101 @@
 package AST.GumTree
 
 import AST.Parse.Parser
+import AST.TestUtils
+import AST.TestUtils.getIdGenerator
 import utest.{TestSuite, Tests, test}
 
 object GumTreeAlgorithmTest extends TestSuite {
-  type Identity = Int
-
-  private def getIdentityF = {
-    var identity: Identity = 0
-    () => {
-      identity += 1;
-      identity
-    }
-  }
-
-
   override def tests: Tests = Tests {
     test("Testing the top down algorithm") {
-      val firstIdentityF = getIdentityF
+      val firstIdentityF = getIdGenerator
       val state1 = Parser.parseSchemeSmall("(begin (define a 10 ) (define b  20) (foo  bar) (no issue))", firstIdentityF).get
       /*                                                               ⚡           ⚡         ⚡                       */
       val state2 = Parser.parseSchemeSmall("(begin (define a 100) (define bb 20) (fool bar) (no issue))", firstIdentityF).get
 
+      val state1_is = "(<16>-<1>begin (<5>-<2>define <3>a <4>10-<5>) (<9>-<6>define <7>b <8>20-<9>) (<12>-<10>foo <11>bar-<12>) (<15>-<13>no <14>issue-<15>)-<16>)"
       // (   begin (   define  a   10  ) (   define  b   20  )  (    foo   bar )  (   no  issue ) )
-      //
       // |   |     |   |       |   |     |   |       |   |      |    |     |      |   |   |
-      // 0   1     2   3       4   5     6   7       8   9      10   11    12     13  14  15
-      // 16  17    18  19      20  21    22  23      24  25     26   27    28     29  30  31
-      // |   |     |   |       |   |     |   |       |   |      |    |     |      |   |   |
-      //
-      // (   begin (   define  a   100 ) (  define   bb  20  )  (    fool  bar )  (   no  issue ) )
+      // 16  1     5   2       3   4     9   6       7   8      12   10    11     15  13  14
       //                           ⚡                 ⚡               ⚡
+      // 32  17    21  18      19  20    25  22      23  24     28   26    27     31  29  30
+      // |   |     |   |       |   |     |   |       |   |      |    |     |      |   |   |
+      // (   begin (   define  a   100 ) (  define   bb  20  )  (    fool  bar )  (   no  issue ) )
+      val state2_is = "(<32>-<17>begin (<21>-<18>define <19>a <20>100-<21>) (<25>-<22>define <23>bb <24>20-<25>) (<28>-<26>fool <27>bar-<28>) (<31>-<29>no <30>issue-<31>)-<32>)"
 
-      println(state1.toIdentifiedString())
-
-      println(state2.toIdentifiedString())
-
+      assert(state1.toIdentifiedString() == state1_is)
+      assert(state2.toIdentifiedString() == state2_is)
 
       val topDownMapping = GumTreeAlgorithm(state1, state2).topDown(
         state1.root.get,
         state2.root.get,
         0,
-        new PrioritySequence[Identity](state1),
-        new PrioritySequence[Identity](state2),
-        scala.collection.mutable.Map.empty[Identity, Identity],
-        scala.collection.mutable.Map.empty[Identity, Identity]
+        new PrioritySequence(state1),
+        new PrioritySequence(state2),
+        scala.collection.mutable.Map.empty,
+        scala.collection.mutable.Map.empty
       )
 
-      topDownMapping.foreach { case (identity3, identity4) => println(s"$identity3: ${state1(identity3).toAstString(state1)} <-> $identity4: ${state2(identity4).toAstString(state2)}") }
-
-
+      assert(topDownMapping ==
+        Map(
+          // 16 -> 32 //    (            -----     (
+          1 -> 17, /////     begin       -----      begin
+          // 5 -> 21 ///     (           -----      (
+          2 -> 22, /////      define     -----       define
+          3 -> 19, /////      a          -----       a
+          // 4 -> 20 ///      10)        --⚡--       100)
+          // 9 -> 25 ///     (           -----      (
+          // 6 -> 22 ///      define     -----       define
+          // 7 -> 23 ///      b          --⚡--       bb
+          8 -> 24, /////      20)        -----       20)
+          // 12 -> 28 //      (          -----       (
+          // 10 -> 28 //       foo       --⚡--        fool
+          11 -> 27, ////       bar)      -----        bar)
+          15 -> 31, ////      (          -----       (
+          13 -> 29, ////       no        -----        no
+          14 -> 30, ////       issue))   -----        issue))
+        ))
 
       val mapping = GumTreeAlgorithm(state1, state2).mappings(state1.root.get, state2.root.get)
-      mapping.foreach { case (identity3, identity4) => println(s"$identity3: ${state1(identity3).toAstString(state1)} <-> $identity4: ${state2(identity4).toAstString(state2)}") }
+      val expected = Map(
+        16 -> 32, ////    (            -----     (
+        1 -> 17, /////     begin       -----      begin
+        5 -> 21, /////     (           -----      (
+        2 -> 22, /////      define     -----       define
+        3 -> 19, /////      a          -----       a
+        4 -> 20, /////      10)        --⚡--       100)
+        9 -> 25, /////     (           -----      (
+        6 -> 18, /////      define     -----       define
+        7 -> 23, /////      b          --⚡--       bb
+        8 -> 24, /////      20)        -----       20)
+        12 -> 28, ////      (          -----       (
+        10 -> 26, ////       foo       --⚡--        fool
+        11 -> 27, ////       bar)      -----        bar)
+        15 -> 31, ////      (          -----       (
+        13 -> 29, ////       no        -----        no
+        14 -> 30, ////       issue))   -----        issue))
+      )
 
-//      mapping.foreach { case (identity3, identity4) => println(s"$identity3: ${state1(identity3).toAstString(state1)} <-> $identity4: ${state2(identity4).toAstString(state2)}") }
-//      println(mapping)
+      assert(mapping == expected)
+    }
 
+    test("The bottom-up phase should not render the assertions incorrect") {
+      val idGetter = TestUtils.getIdGenerator
+      val Some(from) = Parser.parseSchemeSmall("(begin (define a 10) (define c 20) c a b)", idGetter)
+      val Some(to) = Parser.parseSchemeSmall("(define b a)", idGetter)
 
-//      assert(GumTreeAlgorithm(state1, state2).mappings(state1.root.get, state2.root.get).map { case (from, to) => (state1(from).id, state2(to).id) } ==
-//        Map(
-//          // 0 -> 13 /////   (            -----     (
-//          1 -> 14, ///////    begin       -----      begin
-//          2 -> 15, ///////    (           -----      (
-//          3 -> 16, ///////     define     -----       define
-//          4 -> 17, ///////     a          -----       a
-//          5 -> 18, ///////     10)        --⚡--       100)
-//          6 -> 19, ///////    (           -----      (
-//          7 -> 20, ///////     define     -----       define
-//          8 -> 21, ///////     b          --⚡--       bb
-//          9 -> 22, ///////     20)        -----       20)
-//          10 -> 23, //////     (          -----       (
-//          11 -> 24, //////      foo       --⚡--        fool
-//          12 -> 25, //////      bar))     -----        bar))
-//        ))
-//
-//
-//      val secondIdentityF = getIdentityF
-//      val state3 = Parser.parseSchemeSmall("  (begin (define a 10 ) (define b  20) (foo  bar))  ", getIdentityF).get
-//      /*                                            ⚡⚡                                                                   */
-//      val state4 = Parser.parseSchemeSmall("(((begin (define a 10 ) (define b  20) (foo  bar))))", getIdentityF).get
-//
-//      val mappings = GumTreeAlgorithm(state3, state4).mappings(state3.root.get, state4.root.get).map { case (from, to) => (state3(from).id, state4(to).id) }
-//      mappings.foreach { case (identity3, identity4) => println(s"$identity3: ${state3(identity3).toAstString(state3)} <-> $identity4: ${state4(identity4).toAstString(state4)}") }
-//
-//      assert(GumTreeAlgorithm(state3, state4).mappings(state3.root.get, state4.root.get).map { case (from, to) => (state3(from).id, state4(to).id) } ==
-//        Map(
-//          1 -> 14, //   ---
-//          2 -> 15, //   ---
-//          3 -> 16, //   ---
-//          4 -> 17, //   ---
-//          6 -> 19, //   ---
-//          7 -> 20, //   ---
-//          8 -> 21, //   ---
-//          10 -> 23, //  ---
-//          11 -> 24, //  ---
-//        ))
+      val mappings = GumTreeAlgorithm(from, to).mappings(from.root.get, to.root.get)
+
+      val keys = mappings.keys
+      val values = mappings.values
+      assert(keys.size == keys.toSet.size)
+      assert(values.size == values.toSet.size)
+    }
+
+    // This helps to achieve 100% code coverage
+    test("Case class behaviour as expected") {
+      val Some(ast) = Parser.parseSchemeSmall("(foo bar)", getIdGenerator)
+      assert(GumTreeAlgorithm.unapply(GumTreeAlgorithm(ast, ast)).get == (ast, ast))
     }
   }
-
-
 }
