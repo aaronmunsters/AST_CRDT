@@ -26,9 +26,9 @@ case class SchemeExpression[Identity](start: Int,
   def addChild(identity: Identity, index: Int): SchemeExpression[Identity] =
     copy(children =
       if (index < children.length) {
-        children.take(index) ++ Seq(identity) ++ children.drop(index)
+        children.take(index).filterNot(_ == identity) ++ Seq(identity) ++ children.drop(index).filterNot(_ == identity)
       } else
-        children :+ identity
+        children.filterNot(_ == identity) :+ identity
     )
 
   def removeChild(identity: Identity): SchemeExpression[Identity] =

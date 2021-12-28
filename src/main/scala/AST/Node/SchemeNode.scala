@@ -75,7 +75,7 @@ object SchemeNode {
     def children: Seq[Identity]
 
     def height(implicit headedAST: HeadedAST[Identity]): Int =
-      if (children.isEmpty) 0 else children.map(headedAST(_)).map[Int](_.height).max
+      children.map(headedAST(_).height).foldLeft(0)(Math.max)
 
     def descendants(order: TraverseOrder)(implicit headedAST: HeadedAST[Identity]): Seq[Identity] = order match {
       case PreOrder => children.flatMap(child => child +: headedAST(child).descendants(order))

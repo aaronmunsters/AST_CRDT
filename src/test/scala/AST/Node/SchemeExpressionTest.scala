@@ -1,21 +1,19 @@
 package AST.Node
 
-import AST.Node.SchemeNode._
-import AST.Parse.Parser
 import utest.{TestSuite, Tests, test}
 
 object SchemeExpressionTest extends TestSuite {
-  private def getIdGenerator = {
-    var id = 0
-    () => {
-      id += 1
-      id
-    }
-  }
-
   override def tests: Tests = Tests {
     test("SchemeExpression operations") {
-      val expression = SchemeExpression[Double](0, 0, 0, None, Seq(1, 2, 3, 4))
+      test("Creation") {
+        // Through factory method
+        SchemeExpression.empty(0, 0, 0)
+        // Through case class constructor method
+        SchemeExpression[Double](0, 0, 0, None, Seq(1, 2, 3, 4))
+      }
+
+      val expression: SchemeExpression[Double] =
+        SchemeExpression[Double](0, 0, 0, None, Seq(1, 2, 3, 4))
 
       test("`contains` should indicate if subexpressions contain identities") {
         assert(expression.contains(1) && expression.contains(4))
@@ -25,33 +23,32 @@ object SchemeExpressionTest extends TestSuite {
         assert(expression.prependChild(99).children.head == 99)
       }
 
-      test("`addChild` should respect the provided index") {
+      test("`addChild` should respect the provided index, or add it to an empty otherwise") {
         assert(expression.addChild(2.5, 2).children == Seq(1, 2, 2.5, 3, 4))
+        assert(SchemeExpression.empty(0, 0, 0).addChild(99, 99).children.contains(99))
       }
 
       test("`removeChild` should ensure the identity is not contained as a child afterwards") {
         assert(!expression.removeChild(3).contains(3))
       }
 
-      test("Descendants should be computed correctly") {
-        val idGenerator = getIdGenerator
-        implicit val Some(tree) = Parser.parseSchemeSmall("(a (b c d) e (f g) h (i j (k l)))", idGenerator)
-        val Some(root_id) = tree.root
+      test("`sameLabel` should hold for expressions") {
+        assert(expression.sameLabel(SchemeExpression.empty(0, 0, 0)))
+        assert(!expression.sameLabel(SchemeNumber(0, 0, 0, None, 0)))
+      }
 
-        def get_identifiers_in(order: TraverseOrder) = {
-          val sample_identifier = SchemeIdentifier(0, 0 ,idGenerator(), None, "empty")
-          tree(root_id)
-            .descendants(order)
-            .map(tree(_))
-            .filter(sample_identifier.sameLabel)
-            .map(_.toAstString)
-        }
+      test("`sameValue` should behave equally to sameLabel since expressions do not hold any values") {
+        assert(expression.sameValue(SchemeExpression.empty(0, 0, 0)))
+        assert(!expression.sameValue(SchemeNumber(0, 0, 0, None, 0)))
+      }
 
-        assert(get_identifiers_in(PreOrder) == Seq("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"))
-        assert(get_identifiers_in(BreadthFirst) == Seq("a", "e", "h", "b", "c", "d", "f", "g", "i", "j", "k", "l"))
+      test("`withoutChildren` should equal to the provided argument without any children") {
+        assert(expression.children.nonEmpty)
+        assert(expression.withoutChildren.asInstanceOf[SchemeExpression[_]].children.isEmpty)
+      }
 
-        // difference is in relation to children, but identifiers are never parents
-        assert(get_identifiers_in(PostOrder) == Seq("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"))
+      test("`toIdentifiedString` should include the identifier") {
+        assert(SchemeExpression.empty(0, 0, 0).toIdentifiedString(null) == "(<0>--<0>)")
       }
     }
   }
