@@ -1,6 +1,6 @@
-package AST
+package AST.CRDT
 
-import AST.Edit._
+import AST.Edit.AstEdit
 
 trait ReplicatedOperation[Identity, EditIdentity] {
   val editIdentity: EditIdentity

@@ -1,5 +1,6 @@
 package AST
 
+import AST.CRDT.ReplicatedIntOp
 import AST.Edit.AstEdit.{Add, Delete, Move}
 import AST.Edit.UpdateValue
 import AST.Node.SchemeNode

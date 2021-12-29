@@ -1,4 +1,6 @@
-package AST
+package AST.CRDT
+
+import AST.{HeadedAST, TX}
 
 class ConflictFreeReplicatedAst[Identity, EditIdentity](start: HeadedAST[Identity],
                                                         implicit val ordering: Ordering[EditIdentity],

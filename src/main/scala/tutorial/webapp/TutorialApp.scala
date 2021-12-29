@@ -1,10 +1,11 @@
 package tutorial.webapp
 
 
+import AST.CRDT.{ConflictFreeReplicatedAst, ReplicatedIntOp, ReplicatedOperation}
 import AST.GumTree.{GumTreeAlgorithm, MinimumEditScript}
 import AST.Node.SchemeNode.SchemeExpression
 import AST.Parse.Parser
-import AST.ReplicatedIntOp.serialize
+import AST.CRDT.ReplicatedIntOp.serialize
 import AST._
 
 import scala.scalajs.js
