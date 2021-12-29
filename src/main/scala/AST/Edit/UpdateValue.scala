@@ -9,6 +9,7 @@ object UpdateValue {
     value match {
       case l: Long => UpdateNumber(target, l)
       case s: String => UpdateString(target, s)
+      case s: Seq[Char] => UpdateString(target, s)
     }
 
   def perform[Value, Identity](ast: HeadedAST[Identity], updateValue: UpdateNumber[Identity]): HeadedAST[Identity] = updateValue match {
@@ -25,7 +26,7 @@ object UpdateValue {
       ast.header.get(target) match {
         case None => ast
         case Some(targetTree) =>
-          ast.copy(header = ast.header.updated(target, targetTree.asInstanceOf[LeafNode[Identity, String]].withValue(value)))
+          ast.copy(header = ast.header.updated(target, targetTree.asInstanceOf[LeafNode[Identity, Seq[Char]]].withValue(value)))
       }
   }
 }

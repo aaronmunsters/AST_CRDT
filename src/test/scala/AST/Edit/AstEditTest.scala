@@ -1,6 +1,6 @@
 package AST.Edit
 
-import AST.Node.SchemeNumber
+import AST.Node.SchemeNode._
 import AST.Parse.Parser
 import AST.TestUtils
 import utest.{TestSuite, Tests, test}

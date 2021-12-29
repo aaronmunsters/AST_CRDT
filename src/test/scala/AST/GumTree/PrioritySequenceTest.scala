@@ -1,7 +1,6 @@
 package AST.GumTree
 
-import AST.Node.SchemeNode.RecursiveNode
-import AST.Node.SchemeNumber
+import AST.Node.SchemeNode._
 import AST.Parse.Parser
 import AST.TestUtils.getIdGenerator
 import utest.{TestSuite, Tests, test}
@@ -17,7 +16,7 @@ object PrioritySequenceTest extends TestSuite {
       assert(ps.pop == Set(2, 3, 4, 1))
       assert(ps.pop == Set())
 
-      ps.open(SchemeNumber(0,0,0,Some(0),0))
+      ps.open(SchemeNumber(0, 0, 0, Some(0), 0))
       assert(ps.pop == Set())
 
       ps.push(tree.root.map(tree.header).get.asInstanceOf[RecursiveNode[Int]].children.head)

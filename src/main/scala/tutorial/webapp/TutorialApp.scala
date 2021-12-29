@@ -4,6 +4,7 @@ package tutorial.webapp
 import AST.GumTree.{GumTreeAlgorithm, MinimumEditScript}
 import AST.Node.SchemeExpression
 import AST.Parse.Parser
+import AST.ReplicatedIntOp.serialize
 import AST._
 
 import scala.scalajs.js
@@ -27,7 +28,7 @@ object TutorialApp {
 
   @JSExportTopLevel("receiveRemoteUpdate")
   def receiveRemoteUpdate(data: ArrayBuffer): Unit = {
-    val operation = ReplicatedStringOp.deserialize(TypedArrayBuffer.wrap(data))
+    val operation = ReplicatedIntOp.deserialize(TypedArrayBuffer.wrap(data))
     lastEditCount = operation.editIdentity._1 // update local lamport clock
     val before = local_replica.query
     local_replica.merge(Seq(operation))
@@ -37,10 +38,9 @@ object TutorialApp {
   }
 
   object transmitter extends TX[ReplicatedOperation[Int, (Int, Int)]] {
-    override def publish(value: Seq[ReplicatedOperation[Int, (Int, Int)]]): Unit = {
+    override def publish(value: Seq[ReplicatedOperation[Int, (Int, Int)]]): Unit =
       // src: https://stackoverflow.com/a/44587782
-      value.map(ReplicatedStringOp.from).map(_.serialize().typedArray()).foreach(global_Publish)
-    }
+      value.map(ReplicatedIntOp.from).map(serialize).map(_.typedArray()).foreach(global_Publish)
   }
 
   object replicatedOperationOrdering extends Ordering[(Int, Int)] {
@@ -71,7 +71,7 @@ object TutorialApp {
     val before = local_replica.query
     val mapping = GumTreeAlgorithm(before, after).mappings(before.root.get, after.root.get)
     val edits = new MinimumEditScript(before, after, mapping).compute()
-    val replicableEdits = edits.map(ReplicatedStringOp(getEditIdentity(), _))
+    val replicableEdits = edits.map(ReplicatedIntOp(getEditIdentity(), _))
     if (replicableEdits.nonEmpty) local_replica.update(replicableEdits)
   }
 

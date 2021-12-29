@@ -2,7 +2,8 @@ package AST.Edit
 
 import AST.Edit.AstEdit.Add
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeNode}
+import AST.Node.SchemeNode
+import AST.Node.SchemeNode.SchemeExpression
 
 object Add {
   def perform[Identity](ast: HeadedAST[Identity], add: Add[Identity]): HeadedAST[Identity] = add match {

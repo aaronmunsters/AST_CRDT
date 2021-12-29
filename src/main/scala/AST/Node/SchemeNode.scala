@@ -49,7 +49,7 @@ object SchemeNode {
   // A B C D E F G H I J
   final object BreadthFirst extends TraverseOrder
 
-  trait LeafNode[Identity, Content] extends SchemeNode[Identity] {
+  sealed trait LeafNode[Identity, Content] extends SchemeNode[Identity] {
     val value: Content
 
     def height(implicit headedAST: HeadedAST[Identity]): Int = 1
@@ -69,7 +69,7 @@ object SchemeNode {
     def withValue(newValue: Content): LeafNode[Identity, Content]
   }
 
-  trait RecursiveNode[Identity] extends SchemeNode[Identity] {
+  sealed trait RecursiveNode[Identity] extends SchemeNode[Identity] {
     def contains(identity: Identity): Boolean = children.contains(identity)
 
     def children: Seq[Identity]
@@ -98,4 +98,112 @@ object SchemeNode {
 
     def removeChild(child: Identity): RecursiveNode[Identity]
   }
+
+  // Start of instantiations
+  case class SchemeExpression[Identity](start: Int,
+                                        end: Int,
+                                        id: Identity,
+                                        parent: Option[Identity],
+                                        children: Seq[Identity]) extends RecursiveNode[Identity] {
+    def prependChild(identity: Identity): SchemeExpression[Identity] =
+      copy(children = identity +: children)
+
+    /**
+     * Inserts the given identity at the position specified by index, causing the elements after it to move by 1
+     *
+     * @param identity : the identity to add
+     * @param index    : the index in the sequence of children where to add the identity
+     * @return a copy of the SchemeExpression with the newly added child
+     */
+    def addChild(identity: Identity, index: Int): SchemeExpression[Identity] =
+      copy(children =
+        if (index < children.length) {
+          children.take(index).filterNot(_ == identity) ++ Seq(identity) ++ children.drop(index).filterNot(_ == identity)
+        } else
+          children.filterNot(_ == identity) :+ identity
+      )
+
+    def removeChild(identity: Identity): SchemeExpression[Identity] =
+      copy(children = children.filterNot(_ == identity))
+
+    override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {
+      case _: SchemeExpression[_] => true
+      case _ => false
+    }
+
+    override def sameValue(n: SchemeNode[Identity]): Boolean = sameLabel(n)
+
+    override def withParent(identity: Identity): SchemeNode[Identity] =
+      copy(parent = Some(identity))
+
+    def toIdentifiedString(implicit headedAST: HeadedAST[Identity]): String =
+      s"(<$id>-${children.map(headedAST(_).toIdentifiedString).mkString(" ")}-<$id>)"
+
+    def withoutChildren: SchemeNode[Identity] = copy(children = Seq())
+
+    override def withChildren(children: Seq[Identity]): RecursiveNode[Identity] =
+      copy(children = children)
+  }
+
+  case class SchemeIdentifier[Identity](start: Int,
+                                        end: Int,
+                                        id: Identity,
+                                        parent: Option[Identity],
+                                        value: Seq[Char]) extends LeafNode[Identity, Seq[Char]] {
+    override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {
+      case _: SchemeIdentifier[_] => true
+      case _ => false
+    }
+
+    override def sameValue(n: SchemeNode[Identity]): Boolean =
+      sameLabel(n) && n.asInstanceOf[SchemeIdentifier[Identity]].value == value
+
+    override def withParent(identity: Identity): SchemeNode[Identity] =
+      copy(parent = Some(identity))
+
+    override def withValue(newValue: Seq[Char]): SchemeIdentifier[Identity] = this.copy(value = newValue)
+
+    override def toAstString(implicit headedAST: HeadedAST[Identity]): String = value.mkString
+  }
+
+  case class SchemeNumber[Identity](start: Int,
+                                    end: Int,
+                                    id: Identity,
+                                    parent: Option[Identity],
+                                    value: Long) extends LeafNode[Identity, Long] {
+    override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {
+      case _: SchemeNumber[_] => true
+      case _ => false
+    }
+
+    override def sameValue(n: SchemeNode[Identity]): Boolean =
+      sameLabel(n) && n.asInstanceOf[SchemeNumber[Identity]].value == value
+
+    override def withParent(identity: Identity): SchemeNode[Identity] =
+      copy(parent = Some(identity))
+
+    override def withValue(newValue: Long): SchemeNumber[Identity] = this.copy(value = newValue)
+  }
+
+  case class SchemeString[Identity](start: Int,
+                                    end: Int,
+                                    id: Identity,
+                                    parent: Option[Identity],
+                                    value: Seq[Char]) extends LeafNode[Identity, Seq[Char]] {
+    override def toAstString(implicit headedAST: HeadedAST[Identity]): String = '"' + value.mkString + '"'
+
+    override def sameLabel(n: SchemeNode[Identity]): Boolean = n match {
+      case _: SchemeString[_] => true
+      case _ => false
+    }
+
+    override def sameValue(n: SchemeNode[Identity]): Boolean =
+      sameLabel(n) && n.asInstanceOf[SchemeString[Identity]].value == value
+
+    override def withParent(identity: Identity): SchemeNode[Identity] =
+      copy(parent = Some(identity))
+
+    override def withValue(newValue: Seq[Char]): SchemeString[Identity] = this.copy(value = newValue)
+  }
+
 }

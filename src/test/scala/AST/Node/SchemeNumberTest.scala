@@ -1,6 +1,7 @@
 package AST.Node
 
 import utest.{TestSuite, Tests, test}
+import AST.Node.SchemeNode._
 
 object SchemeNumberTest extends TestSuite {
   override def tests: Tests = Tests {

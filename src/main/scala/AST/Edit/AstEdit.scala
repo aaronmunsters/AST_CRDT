@@ -26,7 +26,7 @@ object AstEdit {
       AST.Edit.UpdateValue.perform(ast, this)
   }
 
-  case class UpdateString[Identity](target: Identity, value: String) extends AstEdit[Identity] {
+  case class UpdateString[Identity](target: Identity, value: Seq[Char]) extends AstEdit[Identity] {
     override def perform(ast: HeadedAST[Identity]): HeadedAST[Identity] =
       AST.Edit.UpdateValue.perform(ast, this)
   }

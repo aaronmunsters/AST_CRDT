@@ -1,16 +1,17 @@
 package AST.Parse
 
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
-import fastparse._
-import MultiLineWhitespace._ // ignore whitespaces, newlines etc.
+import AST.Node.SchemeNode
+import AST.Node.SchemeNode.{SchemeExpression, SchemeIdentifier, SchemeNumber, SchemeString}
+import fastparse.MultiLineWhitespace._
+import fastparse._ // ignore whitespaces, newlines etc.
 
 object Parser {
   def parse[Identity](source: String, getIdentity: () => Identity): Option[HeadedAST[Identity]] = {
 
     def identifier[_: P] =
       P(Index ~ CharsWhileIn("a-zA-Z_=!@#$%^&*=+'\\/<>").! ~ Index)
-        .map { case (start, identifier, end) => HeadedAST.withRoot(SchemeIdentifier(start, end, getIdentity(), None, identifier))}
+        .map { case (start, identifier, end) => HeadedAST.withRoot(SchemeIdentifier(start, end, getIdentity(), None, identifier)) }
 
     def string[_: P] =
       P(Index ~ "\"" ~ CharsWhile(_ != '\"').rep.! ~ "\"" ~ Index)
@@ -33,7 +34,8 @@ object Parser {
               .updated(updatedExpression.id, updatedExpression)
               .updated(updatedChild.id, updatedChild)
             soFar.copy(header = updatedHeader)
-          }) }
+          })
+        }
 
     def program[_: P] = P(Start ~ expression ~ End)
 

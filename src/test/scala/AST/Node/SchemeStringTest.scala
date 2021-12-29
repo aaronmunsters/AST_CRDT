@@ -1,6 +1,7 @@
 package AST.Node
 
 import utest.{TestSuite, Tests, test}
+import AST.Node.SchemeNode._
 
 object SchemeStringTest extends TestSuite {
   override def tests: Tests = Tests {
@@ -20,7 +21,7 @@ object SchemeStringTest extends TestSuite {
 
       test("`withParent` and `withValue` should replace the parent and value respectively") {
         assert(expression.withParent(123456).parent.contains(123456))
-        assert(expression.withValue("new foo").value == "new foo")
+        assert(expression.withValue("new foo").value == "new foo".toSeq)
       }
 
       test("`toAstString` should include the quotation marks") {
@@ -31,7 +32,7 @@ object SchemeStringTest extends TestSuite {
     // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
       val string = SchemeString(0, 1, 2, Some(3), "123456789")
-      assert(SchemeString.unapply(string).get == (0, 1, 2, Some(3), "123456789"))
+      assert(SchemeString.unapply(string).get == (0, 1, 2, Some(3), "123456789".toSeq))
     }
   }
 }

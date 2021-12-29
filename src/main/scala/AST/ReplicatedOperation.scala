@@ -1,9 +1,8 @@
 package AST
 
 import AST.Edit._
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber, SchemeString}
 import boopickle.Default._
-
+import AST.Node._
 import java.nio.ByteBuffer
 
 trait ReplicatedOperation[Identity, EditIdentity] {
@@ -11,70 +10,19 @@ trait ReplicatedOperation[Identity, EditIdentity] {
   val edit: AstEdit[Identity]
 }
 
-sealed trait SerializableAstEdit
+case class ReplicatedIntOp(editIdentity: (Int, Int), edit: AstEdit[Int])
+  extends ReplicatedOperation[Int, (Int, Int)]
 
-sealed trait SerializableAst
+object ReplicatedIntOp {
+  def from(replicatedOperation: ReplicatedOperation[Int, (Int, Int)]): ReplicatedIntOp =
+    ReplicatedIntOp(replicatedOperation.editIdentity, replicatedOperation.edit)
 
-private sealed case class RepIntOp(editIdentity: (Int, Int), edit: SerializableAstEdit)
-
-object SerializableAstEdit {
-  case class Add(tree: SerializableAst, parent: Option[Int], index: Int) extends SerializableAstEdit
-  case class Delete(target: Int)                                         extends SerializableAstEdit
-  case class Move(child: Int, newParent: Int, index: Int)                extends SerializableAstEdit
-  case class UpdateString(target: Int, value: Array[Char])               extends SerializableAstEdit
-  case class UpdateNumber(target: Int, value: Long)                      extends SerializableAstEdit
-
-  case class AstExpression(id: Int, parent: Option[Int], children: Array[Int]) extends SerializableAst
-  case class AstIdentifier(id: Int, parent: Option[Int], value: Array[Char])   extends SerializableAst
-  case class AstNumber(id: Int, parent: Option[Int], value: Long)              extends SerializableAst
-  case class AstString(id: Int, parent: Option[Int], value: Array[Char])       extends SerializableAst
-
-  def astEditToSerializableEdit(astEdit: AstEdit[Int]): SerializableAstEdit = astEdit match {
-    case delete: AstEdit.Delete[Int] => Delete(delete.target)
-    case move: AstEdit.Move[Int] => Move(move.child, move.newParent, move.index)
-    case value: AstEdit.UpdateNumber[Int] => UpdateNumber(value.target, value.value)
-    case value: AstEdit.UpdateString[Int] => UpdateString(value.target, value.value.toCharArray)
-    case add: AstEdit.Add[Int] =>
-      val serTree = add.tree match {
-        case expression: SchemeExpression[Int] => AstExpression(expression.id, expression.parent, expression.children.toArray)
-        case identifier: SchemeIdentifier[Int] => AstIdentifier(identifier.id, identifier.parent, identifier.value.toCharArray)
-        case number: SchemeNumber[Int] => AstNumber(number.id, number.parent, number.value)
-        case string: SchemeString[Int] => AstString(string.id, string.parent, string.value.toCharArray)
-      }
-      Add(serTree, add.parent, add.index)
+  def deserialize(buffer: ByteBuffer): ReplicatedIntOp = {
+    val (editIdentity: (Int, Int), edit: AstEdit[Int]) = Unpickle[((Int, Int), AstEdit[Int])].fromBytes(buffer)
+    ReplicatedIntOp(editIdentity, edit)
   }
 
-  def serializedEditToEdit(serEdit: SerializableAstEdit): AstEdit[Int] = serEdit match {
-    case Delete(target) => AST.Edit.AstEdit.Delete(target)
-    case Move(child, newParent, index) => AST.Edit.AstEdit.Move(child, newParent, index)
-    case UpdateString(target, value) => UpdateValue(target, value.mkString(""))
-    case UpdateNumber(target, value) => UpdateValue(target, value)
-    case Add(tree, parent, index) =>
-      val hydratedTree = tree match {
-        case AstExpression(id, parent, children) => SchemeExpression(0, 0, id, parent, children)
-        case AstIdentifier(id, parent, value) => SchemeIdentifier(0, 0, id, parent, value.mkString(""))
-        case AstNumber(id, parent, value) => SchemeNumber(0, 0, id, parent, value)
-        case AstString(id, parent, value) => SchemeString(0, 0, id, parent, value.mkString(""))
-      }
-      AST.Edit.AstEdit.Add(hydratedTree, parent, index)
+  def serialize(replicatedIntOp: ReplicatedIntOp): ByteBuffer = replicatedIntOp match {
+    case ReplicatedIntOp(editIdentity, edit) => Pickle.intoBytes((editIdentity, edit))
   }
-}
-
-case class ReplicatedStringOp(editIdentity: (Int, Int), edit: AstEdit[Int])
-  extends ReplicatedOperation[Int, (Int, Int)] {
-
-  def serialize(): ByteBuffer =
-    Pickle.intoBytes(RepIntOp(editIdentity, SerializableAstEdit.astEditToSerializableEdit(edit)))
-
-}
-
-object ReplicatedStringOp {
-  def from(v: ReplicatedOperation[Int, (Int, Int)]): ReplicatedStringOp =
-    ReplicatedStringOp(v.editIdentity, v.edit)
-
-  def deserialize(buffer: ByteBuffer): ReplicatedStringOp = {
-    val RepIntOp(editIdentity, edit) = Unpickle[RepIntOp].fromBytes(buffer)
-    ReplicatedStringOp(editIdentity, SerializableAstEdit.serializedEditToEdit(edit))
-  }
-
 }

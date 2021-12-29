@@ -1,7 +1,8 @@
 package AST
 
 import AST.Edit.Add
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber}
+import AST.Node.SchemeNode.SchemeExpression
+import AST.Node.SchemeNode._
 import AST.Parse.Parser
 import utest._
 
@@ -55,7 +56,7 @@ object HeadedASTTest extends TestSuite {
                                   |     bar)""".stripMargin, 11, 'a')
 
       {
-        // Tests for the cursor in the middle of (), testing that it remains at the correct possition
+        // Tests for the cursor in the middle of (), testing that it remains at the correct position
         val source = "()"
         val tree: HeadedAST[Int] = Parse.Parser.parse(source, getId).get
         val (identity, offset) = tree.idAt(1).get
@@ -71,7 +72,7 @@ object HeadedASTTest extends TestSuite {
         val (identity, _) = tree.idAtConsidering(9, source, getId).get
 
         assert(tree(identity).isInstanceOf[SchemeIdentifier[_]])
-        assert(tree(identity).asInstanceOf[SchemeIdentifier[_]].value == "a")
+        assert(tree(identity).asInstanceOf[SchemeIdentifier[_]].value == "a".toSeq)
       }
 
       def assert_keeping_position(source: String, position: Int): Unit = {

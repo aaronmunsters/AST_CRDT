@@ -2,7 +2,8 @@ package AST.Edit
 
 import AST.Edit.AstEdit.Delete
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeNode}
+import AST.Node.SchemeNode
+import AST.Node.SchemeNode.SchemeExpression
 
 object Delete {
   def apply[Identity](node: SchemeNode[Identity]): Delete[Identity] = AST.Edit.AstEdit.Delete(node.id)
