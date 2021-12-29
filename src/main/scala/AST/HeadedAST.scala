@@ -1,6 +1,6 @@
 package AST
 
-import AST.Node.SchemeNode.{LeafNode, PreOrder}
+import AST.Node.SchemeNode.{LeafNode, PreOrder, RecursiveNode}
 import AST.Node._
 
 object HeadedAST {
@@ -40,7 +40,7 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
     def nodeToString(depth: Int, nodeIdentity: Identity): String = {
       assert(contains(nodeIdentity))
       val subtree = header(nodeIdentity) match {
-        case expression: SchemeExpression[Identity] =>
+        case expression: RecursiveNode[Identity] =>
           if (expression.children.isEmpty) "()" else {
             val head +: tail = expression.children
             s"(${(nodeToString(0, head) +: tail.map(nodeToString(depth + indentation, _))).mkString("\n")})"
