@@ -93,5 +93,9 @@ object SchemeNode {
         case (myChildId, otherChildId) => myChildId.isomorphic(myHeader, otherChildId, otherHeader)
       }
     }
+
+    def withChildren(children: Seq[Identity]): RecursiveNode[Identity]
+
+    def removeChild(child: Identity): RecursiveNode[Identity]
   }
 }

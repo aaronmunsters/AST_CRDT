@@ -2,7 +2,7 @@ package AST.Edit
 
 import AST.Edit.AstEdit.Move
 import AST.HeadedAST
-import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNode, SchemeNumber, SchemeString}
+import AST.Node.SchemeNode.RecursiveNode
 
 object Move {
 
@@ -22,25 +22,17 @@ object Move {
 
       val moveInSameParent = newParentTree == oldParentTree
 
-      val updatedNewParent = newParentTree match {
-        case expression: SchemeExpression[Identity] =>
-          val (before, after) = expression.children.filterNot(_ == child).splitAt(index)
-          expression.copy(children = before ++ Seq(child) ++ after)
-        case old => old
-      }
+      assert(newParentTree.isInstanceOf[RecursiveNode[Identity]])
+      val (before, after) =
+        newParentTree.asInstanceOf[RecursiveNode[Identity]].children.filterNot(_ == child).splitAt(index)
+      val updatedNewParent =
+        newParentTree.asInstanceOf[RecursiveNode[Identity]].withChildren(before ++ Seq(child) ++ after)
 
-      val updatedOldParent = oldParentTree match {
-        case expression: SchemeExpression[Identity] if !moveInSameParent => expression.removeChild(child)
-        case _: SchemeExpression[Identity] if moveInSameParent => updatedNewParent
-        case old => old
-      }
+      val updatedOldParent =
+        if (moveInSameParent) updatedNewParent
+        else oldParentTree.asInstanceOf[RecursiveNode[Identity]].removeChild(child)
 
-      val updatedChild = childTree match { // TODO: look for neater way to update this value
-        case e: SchemeIdentifier[Identity] => e.copy(parent = Some(newParent))
-        case e: SchemeNumber[Identity] => e.copy(parent = Some(newParent))
-        case e: SchemeString[Identity] => e.copy(parent = Some(newParent))
-        case e: SchemeExpression[Identity] => e.copy(parent = Some(newParent))
-      }
+      val updatedChild = childTree.withParent(newParent)
 
       ast.copy(header = ast.header
         .updated(newParent, updatedNewParent)

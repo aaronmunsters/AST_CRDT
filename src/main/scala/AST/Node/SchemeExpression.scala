@@ -48,4 +48,7 @@ case class SchemeExpression[Identity](start: Int,
     s"(<$id>-${children.map(headedAST(_).toIdentifiedString).mkString(" ")}-<$id>)"
 
   def withoutChildren: SchemeNode[Identity] = copy(children = Seq())
+
+  override def withChildren(children: Seq[Identity]): RecursiveNode[Identity] =
+    copy(children = children)
 }
