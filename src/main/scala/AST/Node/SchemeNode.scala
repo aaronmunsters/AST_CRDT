@@ -145,6 +145,11 @@ object SchemeNode {
       copy(children = children)
   }
 
+  object SchemeExpression {
+    def empty[Identity](start: Int, end: Int, identity: Identity): SchemeExpression[Identity] =
+      AST.Node.SchemeNode.SchemeExpression(start, end, identity, None, Seq())
+  }
+
   case class SchemeIdentifier[Identity](start: Int,
                                         end: Int,
                                         id: Identity,

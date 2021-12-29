@@ -2,7 +2,7 @@ package tutorial.webapp
 
 
 import AST.GumTree.{GumTreeAlgorithm, MinimumEditScript}
-import AST.Node.SchemeExpression
+import AST.Node.SchemeNode.SchemeExpression
 import AST.Parse.Parser
 import AST.ReplicatedIntOp.serialize
 import AST._
@@ -39,7 +39,7 @@ object TutorialApp {
 
   object transmitter extends TX[ReplicatedOperation[Int, (Int, Int)]] {
     override def publish(value: Seq[ReplicatedOperation[Int, (Int, Int)]]): Unit =
-      // src: https://stackoverflow.com/a/44587782
+    // src: https://stackoverflow.com/a/44587782
       value.map(ReplicatedIntOp.from).map(serialize).map(_.typedArray()).foreach(global_Publish)
   }
 
@@ -86,7 +86,9 @@ object TutorialApp {
 
     })
     var id = 0
-    val uqId = () => {id+=1; id}
+    val uqId = () => {
+      id += 1; id
+    }
     local_replica.query.idAtConsidering(position, changedSource, uqId)
       .map { case (identity, offset) => local_replica.query.startPos(identity) + offset }
       .getOrElse(0)
