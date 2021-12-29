@@ -2,6 +2,7 @@ package AST
 
 import AST.Edit.Add
 import AST.Node.{SchemeExpression, SchemeIdentifier, SchemeNumber}
+import AST.Parse.Parser
 import utest._
 
 object HeadedASTTest extends TestSuite {
@@ -38,15 +39,11 @@ object HeadedASTTest extends TestSuite {
       assert(emptyAst.toAstString() == "")
     }
 
-    var id = 0
-    val getId = () => {
-      id += 1
-      id
-    }
+    val getId = TestUtils.getIdGenerator
 
     test("Positioning in the AST right after parsing") {
       def assert_position_character(source: String, position: Int, char: Char): Unit = {
-        val tree = Parse.Parser.parseSchemeSmall(source, getId).get
+        val tree = Parse.Parser.parse(source, getId).get
         val (identity, offset) = tree.idAt(position).get
         assert(tree(identity).toAstString(tree)(offset) == char)
       }
@@ -60,7 +57,7 @@ object HeadedASTTest extends TestSuite {
       {
         // Tests for the cursor in the middle of (), testing that it remains at the correct possition
         val source = "()"
-        val tree: HeadedAST[Int] = Parse.Parser.parseSchemeSmall(source, getId).get
+        val tree: HeadedAST[Int] = Parse.Parser.parse(source, getId).get
         val (identity, offset) = tree.idAt(1).get
         assert(tree.startPos(identity) + offset == 1)
       }
@@ -70,7 +67,7 @@ object HeadedASTTest extends TestSuite {
       {
         // Tests for the cursor touching the ending of the a
         val source = "(define a)"
-        val tree: HeadedAST[Int] = Parse.Parser.parseSchemeSmall(source, getId).get
+        val tree: HeadedAST[Int] = Parse.Parser.parse(source, getId).get
         val (identity, _) = tree.idAtConsidering(9, source, getId).get
 
         assert(tree(identity).isInstanceOf[SchemeIdentifier[_]])
@@ -78,7 +75,7 @@ object HeadedASTTest extends TestSuite {
       }
 
       def assert_keeping_position(source: String, position: Int): Unit = {
-        val tree = Parse.Parser.parseSchemeSmall(source, getId).get
+        val tree = Parse.Parser.parse(source, getId).get
         val (identity, offset) = tree.idAtConsidering(position, source, getId).get
         assert(tree.startPos(identity) + offset == position)
       }
@@ -96,6 +93,18 @@ object HeadedASTTest extends TestSuite {
                                 |    (a)
                                 |    g)""".stripMargin, 19)
 
+    }
+
+    test("Isomorphism") {
+      assert(!HeadedAST.empty.isomorphic(HeadedAST.withRoot(SchemeExpression(0,0,0,None,Seq()))))
+      val Some(tree) = Parser.parse("(define (a b 19 \"bar\"))", getId)
+      assert(tree isomorphic tree)
+      assert(tree.toIdentifiedString() == "(<7>-<1>define (<6>-<2>a <3>b <4>19 <5>bar-<6>)-<7>)")
+      assert(tree.toPrettyAstString() == """(define
+                                           |    (a
+                                           |        b
+                                           |        19
+                                           |        "bar"))""".stripMargin)
     }
   }
 }

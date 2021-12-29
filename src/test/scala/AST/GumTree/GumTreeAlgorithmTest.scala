@@ -9,9 +9,9 @@ object GumTreeAlgorithmTest extends TestSuite {
   override def tests: Tests = Tests {
     test("Testing the top down algorithm") {
       val firstIdentityF = getIdGenerator
-      val state1 = Parser.parseSchemeSmall("(begin (define a 10 ) (define b  20) (foo  bar) (no issue))", firstIdentityF).get
+      val state1 = Parser.parse("(begin (define a 10 ) (define b  20) (foo  bar) (no issue))", firstIdentityF).get
       /*                                                               ⚡           ⚡         ⚡                       */
-      val state2 = Parser.parseSchemeSmall("(begin (define a 100) (define bb 20) (fool bar) (no issue))", firstIdentityF).get
+      val state2 = Parser.parse("(begin (define a 100) (define bb 20) (fool bar) (no issue))", firstIdentityF).get
 
       val state1_is = "(<16>-<1>begin (<5>-<2>define <3>a <4>10-<5>) (<9>-<6>define <7>b <8>20-<9>) (<12>-<10>foo <11>bar-<12>) (<15>-<13>no <14>issue-<15>)-<16>)"
       // (   begin (   define  a   10  ) (   define  b   20  )  (    foo   bar )  (   no  issue ) )
@@ -81,8 +81,8 @@ object GumTreeAlgorithmTest extends TestSuite {
 
     test("The bottom-up phase should not render the assertions incorrect") {
       val idGetter = TestUtils.getIdGenerator
-      val Some(from) = Parser.parseSchemeSmall("(begin (define a 10) (define c 20) c a b)", idGetter)
-      val Some(to) = Parser.parseSchemeSmall("(define b a)", idGetter)
+      val Some(from) = Parser.parse("(begin (define a 10) (define c 20) c a b)", idGetter)
+      val Some(to) = Parser.parse("(define b a)", idGetter)
 
       val mappings = GumTreeAlgorithm(from, to).mappings(from.root.get, to.root.get)
 
@@ -94,7 +94,7 @@ object GumTreeAlgorithmTest extends TestSuite {
 
     // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
-      val Some(ast) = Parser.parseSchemeSmall("(foo bar)", getIdGenerator)
+      val Some(ast) = Parser.parse("(foo bar)", getIdGenerator)
       assert(GumTreeAlgorithm.unapply(GumTreeAlgorithm(ast, ast)).get == (ast, ast))
     }
   }

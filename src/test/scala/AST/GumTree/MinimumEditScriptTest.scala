@@ -7,8 +7,8 @@ import utest.{TestSuite, Tests, test}
 object MinimumEditScriptTest extends TestSuite {
   def assertSuccessTransformation(from_source: String, to_source: String): Unit = {
     val getIdentity = getIdGenerator
-    val from = Parser.parseSchemeSmall(from_source, getIdentity).get
-    val to = Parser.parseSchemeSmall(to_source, getIdentity).get
+    val from = Parser.parse(from_source, getIdentity).get
+    val to = Parser.parse(to_source, getIdentity).get
 
     val mapping = GumTreeAlgorithm(from, to).mappings(from.root.get, to.root.get)
 

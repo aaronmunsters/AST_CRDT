@@ -24,7 +24,7 @@ object SchemeNodeTest extends TestSuite {
 
       test("Order of descendants should be computed correctly") {
         val idGenerator = getIdGenerator
-        implicit val Some(tree) = Parser.parseSchemeSmall("(a (b c d) e (f g) h (i j (k l)))", idGenerator)
+        implicit val Some(tree) = Parser.parse("(a (b c d) e (f g) h (i j (k l)))", idGenerator)
         val Some(root_id) = tree.root
 
         def get_identifiers_in(order: TraverseOrder) = {
@@ -44,7 +44,7 @@ object SchemeNodeTest extends TestSuite {
       }
 
       test("Isomorphic nodes are nodes with the same label and values, but not with equal identity") {
-        val tree = Parser.parseSchemeSmall("(123456789)", getIdGenerator).get
+        val tree = Parser.parse("(123456789)", getIdGenerator).get
         assert(tree isomorphic ast)
       }
 
@@ -61,7 +61,7 @@ object SchemeNodeTest extends TestSuite {
       }
 
       test("`toAstString` simply prints the AST in string format") {
-        val tree = Parser.parseSchemeSmall("(define a b c (d e f) (g h (i j k)))", getIdGenerator).get
+        val tree = Parser.parse("(define a b c (d e f) (g h (i j k)))", getIdGenerator).get
         assert(tree.toAstString() == "(define a b c (d e f) (g h (i j k)))")
       }
     }

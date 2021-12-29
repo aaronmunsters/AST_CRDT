@@ -74,7 +74,7 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
   def idAtConsidering(position: Int, source: String, uniqueIdGenerator: () => Identity): Option[(Identity, Int)] = {
     for {
-      consideringTree <- Parse.Parser.parseSchemeSmall(source, uniqueIdGenerator)
+      consideringTree <- Parse.Parser.parse(source, uniqueIdGenerator)
       (ident, offset) <- consideringTree.idAt(position)
       t1 <- consideringTree.root
       t2 <- root

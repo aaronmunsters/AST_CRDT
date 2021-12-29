@@ -6,7 +6,7 @@ import fastparse._
 import MultiLineWhitespace._ // ignore whitespaces, newlines etc.
 
 object Parser {
-  def parseSchemeSmall[Identity](source: String, getIdentity: () => Identity): Option[HeadedAST[Identity]] = {
+  def parse[Identity](source: String, getIdentity: () => Identity): Option[HeadedAST[Identity]] = {
 
     def identifier[_: P] =
       P(Index ~ CharsWhileIn("a-zA-Z_=!@#$%^&*=+'\\/<>").! ~ Index)
@@ -37,7 +37,7 @@ object Parser {
 
     def program[_: P] = P(Start ~ expression ~ End)
 
-    parse(source, program(_)) match {
+    fastparse.parse(source, program(_)) match {
       case Parsed.Success(headedAST: HeadedAST[Identity], index) if index == source.length => Some(headedAST)
       case _ => None
     }

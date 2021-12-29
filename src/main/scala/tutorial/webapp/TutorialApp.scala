@@ -77,7 +77,7 @@ object TutorialApp {
 
   @JSExportTopLevel("sourceCodeChange")
   def sourceCodeChange(position: Int, changedSource: String): Int = {
-    Parser.parseSchemeSmall(changedSource, getIdentity).foreach(updated => {
+    Parser.parse(changedSource, getIdentity).foreach(updated => {
       val before = local_replica.query
       updateLocalAst(updated)
       val after = local_replica.query

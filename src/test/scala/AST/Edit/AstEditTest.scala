@@ -19,7 +19,7 @@ object AstEditTest extends TestSuite {
 
     test("Serialization") {
       val idGenerator = TestUtils.getIdGenerator
-      val Some(tree) = Parser.parseSchemeSmall("(define a b c)", idGenerator)
+      val Some(tree) = Parser.parse("(define a b c)", idGenerator)
       val number = SchemeNumber(0, 0, idGenerator(), Some(tree.root.get), 123456)
       val define_id = tree(tree.root.get).asInstanceOf[RecursiveNode[Int]].children.head
       val updated = tree

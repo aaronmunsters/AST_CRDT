@@ -9,7 +9,7 @@ import utest.{TestSuite, Tests, test}
 object PrioritySequenceTest extends TestSuite {
   override def tests: Tests = Tests {
     test("Printing works as expected") {
-      val Some(tree) = Parser.parseSchemeSmall("(define a b c)", getIdGenerator)
+      val Some(tree) = Parser.parse("(define a b c)", getIdGenerator)
       val ps = new PrioritySequence[Int](tree)
       assert(ps.toString == "PrioritySequence[]")
       ps.open(tree.root.map(tree.header).get)
