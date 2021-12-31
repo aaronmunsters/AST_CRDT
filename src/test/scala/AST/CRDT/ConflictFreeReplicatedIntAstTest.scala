@@ -1,5 +1,6 @@
 package AST.CRDT
 
+import AST.CRDT.ReplicatedIntOp.{LClock, NId, RId}
 import AST.TX
 import utest.{TestSuite, Tests, test}
 
@@ -7,18 +8,18 @@ import scala.collection.mutable
 
 object ConflictFreeReplicatedIntAstTest extends TestSuite {
 
-  class MockedTransmitter(network: scala.collection.mutable.Set[MockedTransmitter]) extends TX[ReplicatedOperation[(Int, Int), (Int, Int)]] {
-    var callback: Option[Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit] = None
+  class MockedTransmitter(network: scala.collection.mutable.Set[MockedTransmitter]) extends TX[ReplicatedIntOp] {
+    var callback: Option[Seq[ReplicatedIntOp] => Unit] = None
     // add transmitter to network
     network.add(this)
 
-    override def publish(value: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]): Unit =
+    override def publish(value: Seq[ReplicatedIntOp]): Unit =
       network.filter(_ != this).foreach(_.receive(value))
 
-    override def subscribe(callback: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit): Unit =
+    override def subscribe(callback: Seq[ReplicatedIntOp] => Unit): Unit =
       this.callback = Some(callback)
 
-    def receive(operations: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]): Unit = {
+    def receive(operations: Seq[ReplicatedIntOp]): Unit = {
       assert(callback.nonEmpty)
       callback.foreach(_ (operations))
     }
@@ -27,8 +28,8 @@ object ConflictFreeReplicatedIntAstTest extends TestSuite {
   override def tests: Tests = Tests {
     test("Test the replicated ASTs") {
       val network: mutable.Set[MockedTransmitter] = mutable.Set.empty
-      val CFR_IA_1___ = ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
-      val CFR_IA____2 = ConflictFreeReplicatedIntAst(2, new MockedTransmitter(network))
+      val CFR_IA_1___ = ConflictFreeReplicatedIntAst(RId(1), new MockedTransmitter(network))
+      val CFR_IA____2 = ConflictFreeReplicatedIntAst(RId(2), new MockedTransmitter(network))
 
       def assert_equality(): Unit = {
         assert(CFR_IA_1___.query isomorphic CFR_IA____2.query)
@@ -57,8 +58,8 @@ object ConflictFreeReplicatedIntAstTest extends TestSuite {
 
       for (l <- 0 to operations.size) {
         val network: mutable.Set[MockedTransmitter] = mutable.Set.empty
-        val CFR_IA_Ordered = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
-        val CFR_IA_Shuffled = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
+        val CFR_IA_Ordered = new ConflictFreeReplicatedIntAst(RId(1), new MockedTransmitter(network))
+        val CFR_IA_Shuffled = new ConflictFreeReplicatedIntAst(RId(1), new MockedTransmitter(network))
 
         val operations_subset = operations.take(l)
         CFR_IA_Ordered merge operations_subset
@@ -86,13 +87,13 @@ object ConflictFreeReplicatedIntAstTest extends TestSuite {
     test("Position updates are correct") {
       def chars_before_after(pos: Int, text: String) = Seq(text.take(pos).last,text.drop(pos).head)
 
-      object EmptyTransmitter extends TX[ReplicatedOperation[(Int, Int), (Int, Int)]] {
-        override def publish(value: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]): Unit = ()
+      object EmptyTransmitter extends TX[ReplicatedIntOp] {
+        override def publish(value: Seq[ReplicatedIntOp]): Unit = ()
 
-        override def subscribe(callback: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit): Unit = ()
+        override def subscribe(callback: Seq[ReplicatedIntOp] => Unit): Unit = ()
       }
 
-      val conflictFreeReplicatedIntAst = ConflictFreeReplicatedIntAst(0, EmptyTransmitter)
+      val conflictFreeReplicatedIntAst = ConflictFreeReplicatedIntAst(RId(0), EmptyTransmitter)
       conflictFreeReplicatedIntAst.update(0, "(define foo bar)")
       val oldSource = "(define foo bar)"
       val oldPos = 10 //         `--> between the o's of 'FOO'
@@ -105,8 +106,8 @@ object ConflictFreeReplicatedIntAstTest extends TestSuite {
     // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
       val transmitter = new MockedTransmitter(mutable.Set())
-      val conflictFreeReplicatedIntAst = ConflictFreeReplicatedIntAst(0, transmitter)
-      assert(ConflictFreeReplicatedIntAst.unapply(conflictFreeReplicatedIntAst).get == (0, transmitter))
+      val conflictFreeReplicatedIntAst = ConflictFreeReplicatedIntAst(RId(0), transmitter)
+      assert(ConflictFreeReplicatedIntAst.unapply(conflictFreeReplicatedIntAst).get == (RId(0), transmitter))
     }
   }
 }

@@ -1,29 +1,31 @@
 package AST.CRDT
 
-import AST.CRDT.ConflictFreeReplicatedIntAst.{getNodeIdGenerator, replicatedOperationOrdering}
+import AST.CRDT.ConflictFreeReplicatedIntAst._
+import AST.CRDT.ReplicatedIntOp.{LClock, NId, RId}
 import AST.HeadedAST.computeChanges
 import AST.Node.SchemeNode.SchemeExpression
 import AST.Parse.Parser
 import AST.{HeadedAST, TX}
 
-case class ConflictFreeReplicatedIntAst(final val replicaIdentity: Int, private val transmitter: TX[ReplicatedOperation[(Int, Int), (Int, Int)]])
-  extends ConflictFreeReplicatedAst(
-    HeadedAST.withRoot(SchemeExpression.empty(0, 0, (0, 0))),
+case class ConflictFreeReplicatedIntAst(final val replicaIdentity: RId,
+                                        private val transmitter: TX[ReplicatedIntOp])
+  extends ConflictFreeReplicatedAst[(RId, NId), (LClock, RId)](
+    HeadedAST.withRoot(SchemeExpression.empty(0, 0, (RId(0), NId(0)))),
     replicatedOperationOrdering,
-    transmitter
+    transmitter.asInstanceOf[TX[ReplicatedOperation[(RId, NId), (LClock, RId)]]]
   ) {
   private var lastEditCount = 0
 
-  private def newEditIdentity: (Int, Int) = {
+  private def newEditIdentity: (LClock, RId) = {
     lastEditCount += 1
-    (lastEditCount, replicaIdentity)
+    (LClock(lastEditCount), replicaIdentity)
   }
 
-  transmitter.subscribe((changes: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]) => {
+  transmitter.subscribe((changes: Seq[ReplicatedOperation[(RId, NId), (LClock, RId)]]) => {
     merge(changes)
     changes
       .map(_.editIdentity)
-      .map { case (newLastEditCount, _) => newLastEditCount }
+      .map { case (LClock(count), _) => count }
       .maxOption.foreach(lastEditCount = _)
   })
 
@@ -41,29 +43,25 @@ case class ConflictFreeReplicatedIntAst(final val replicaIdentity: Int, private 
 }
 
 object ConflictFreeReplicatedIntAst {
-  // TODO: transition editCount and Identity to value classes to lower runtime memory usage but provide more readable code
-  //   => https://docs.scala-lang.org/overviews/core/value-classes.html
-  //  class GlobalLamportClock(val count: Int) extends AnyVal
-  //  class ReplicaIdentity(val identity: Int) extends AnyVal
-
-  object replicatedOperationOrdering extends Ordering[(Int, Int)] {
-    override def compare(x: (Int, Int), y: (Int, Int)): Int = (x, y) match {
+  object replicatedOperationOrdering extends Ordering[(LClock, RId)] {
+    override def compare(x: (LClock, RId), y: (LClock, RId)): Int = (x, y) match {
       case ((x_n, x_str), (y_n, y_str)) =>
-        if (x_n != y_n) x_n compare y_n else x_str compare y_str
+        if (x_n.count != y_n.count) x_n.count compare y_n.count else x_str.identity compare y_str.identity
     }
   }
 
-  def getNodeIdGenerator(replicaIdentity: Int): () => (Int, Int) = {
+  def getNodeIdGenerator(replicaIdentity: RId): () => (RId, NId) = {
     var id = 0
     () => {
       id = id + 1
-      (replicaIdentity, id)
+      (replicaIdentity, NId(id))
     }
   }
 
-  private def getMeaninglessNodeIdGenerator = getNodeIdGenerator(0)
+  private def getMeaninglessNodeIdGenerator =
+    getNodeIdGenerator(RId(0))
 
-  protected def newPos(headedAST: HeadedAST[(Int, Int)], oldPos: Int, oldSource: String): Option[Int] =
+  protected def newPos(headedAST: HeadedAST[(RId, NId)], oldPos: Int, oldSource: String): Option[Int] =
     headedAST.idAtConsidering(oldPos, oldSource, getMeaninglessNodeIdGenerator)
       .map { case (identity, offset) => headedAST.startPos(identity) + offset }
 

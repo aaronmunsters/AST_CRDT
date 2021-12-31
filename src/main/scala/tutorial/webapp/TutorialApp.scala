@@ -1,6 +1,6 @@
 package tutorial.webapp
 
-import AST.CRDT.ReplicatedIntOp.serialize
+import AST.CRDT.ReplicatedIntOp.{LClock, NId, RId, serialize}
 import AST.CRDT.{ConflictFreeReplicatedIntAst, ReplicatedIntOp, ReplicatedOperation}
 import AST._
 
@@ -21,17 +21,17 @@ object TutorialApp {
   @JSGlobal("updateSourceCode")
   def updateSourceCode(position: Int, newSourceCode: String): Unit = js.native
 
-  object PeerJS_Transmitter extends TX[ReplicatedOperation[(Int, Int), (Int, Int)]] {
-    var local_callback: Option[Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit] = None
+  object PeerJS_Transmitter extends TX[ReplicatedIntOp] {
+    var local_callback: Option[Seq[ReplicatedIntOp] => Unit] = None
 
-    override def publish(value: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]): Unit =
-      value.asInstanceOf[Seq[ReplicatedIntOp]].map(serialize).map(_.typedArray()).foreach(global_publish)
+    override def publish(value: Seq[ReplicatedIntOp]): Unit =
+      value.map(serialize).map(_.typedArray()).foreach(global_publish)
 
-    override def subscribe(callback: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit): Unit =
+    override def subscribe(callback: Seq[ReplicatedIntOp] => Unit): Unit =
       local_callback = Some(callback)
   }
 
-  private val localReplica = ConflictFreeReplicatedIntAst(new Random().nextInt(), PeerJS_Transmitter)
+  private val localReplica = ConflictFreeReplicatedIntAst(RId(new Random().nextInt()), PeerJS_Transmitter)
 
   @JSExportTopLevel("receiveRemoteUpdate")
   def receiveRemoteUpdate(oldPosition: Int, data: ArrayBuffer): Unit = {

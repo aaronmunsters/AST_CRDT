@@ -1,5 +1,6 @@
 package AST.CRDT
 
+import AST.CRDT.ReplicatedIntOp.{LClock, RId, NId}
 import AST.Edit.AstEdit.{Add, Delete, Move}
 import AST.Edit.{AstEdit, UpdateValue}
 import AST.Node.SchemeNode
@@ -13,22 +14,22 @@ object ReplicatedIntOpTest extends TestSuite {
     test("Serialization and deserialization") {
       val options = Seq(
         None,
-        Some((0, 1)),
+        Some((RId(0), NId(1))),
       )
 
-      val nodes: Seq[Option[(Int, Int)] => SchemeNode[(Int, Int)]] = Seq(
-        (option: Option[(Int, Int)]) => SchemeExpression(0, 1, (0, 2), option, Seq((0, 4), (0, 5), (0, 6))),
-        (option: Option[(Int, Int)]) => SchemeNumber(0, 1, (0, 2), option, 123456),
-        (option: Option[(Int, Int)]) => SchemeIdentifier(0, 1, (0, 2), option, "foobar"),
-        (option: Option[(Int, Int)]) => SchemeString(0, 1, (0, 2), option, "some string")
+      val nodes: Seq[Option[(RId, NId)] => SchemeNode[(RId, NId)]] = Seq(
+        (option: Option[(RId, NId)]) => SchemeExpression(0, 1, (RId(0), NId(2)), option, Seq((RId(0), NId(1)))),
+        (option: Option[(RId, NId)]) => SchemeNumber(0, 1, (RId(0), NId(2)), option, 123456),
+        (option: Option[(RId, NId)]) => SchemeIdentifier(0, 1, (RId(0), NId(2)), option, "foobar"),
+        (option: Option[(RId, NId)]) => SchemeString(0, 1, (RId(0), NId(2)), option, "some string")
       )
 
-      val operations: Seq[(SchemeNode[(Int, Int)], Option[(Int, Int)]) => AstEdit[(Int, Int)]] = Seq(
-        (tree: SchemeNode[(Int, Int)], identity: Option[(Int, Int)]) => Add(tree, identity, 0),
-        (_: SchemeNode[(Int, Int)], _: Option[(Int, Int)]) => Delete((0, 0)),
-        (_: SchemeNode[(Int, Int)], _: Option[(Int, Int)]) => Move((0, 0), (0, 1), 2),
-        (_: SchemeNode[(Int, Int)], _: Option[(Int, Int)]) => UpdateValue((0, 0), 10L),
-        (_: SchemeNode[(Int, Int)], _: Option[(Int, Int)]) => UpdateValue((0, 0), "HelloWorld"),
+      val operations: Seq[(SchemeNode[(RId, NId)], Option[(RId, NId)]) => AstEdit[(RId, NId)]] = Seq(
+        (tree: SchemeNode[(RId, NId)], identity: Option[(RId, NId)]) => Add(tree, identity, 0),
+        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => Delete((RId(0), NId(0))),
+        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => Move((RId(0), NId(0)), (RId(0), NId(1)), 2),
+        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => UpdateValue((RId(0), NId(0)), 10L),
+        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => UpdateValue((RId(0), NId(0)), "HelloWorld"),
       )
 
       for {
@@ -36,7 +37,7 @@ object ReplicatedIntOpTest extends TestSuite {
         node <- nodes
         operation <- operations
       } {
-        val original = ReplicatedIntOp((0, 1), operation(node(option), option))
+        val original = ReplicatedIntOp((LClock(0), RId(1)), operation(node(option), option))
         val over_the_wire = ReplicatedIntOp.serialize(original)
         val received = ReplicatedIntOp.deserialize(over_the_wire)
         assert(original == received)
@@ -44,13 +45,13 @@ object ReplicatedIntOpTest extends TestSuite {
     }
 
     test("Construction method") {
-      assert(ReplicatedIntOp.from(ReplicatedIntOp((0, 0), Delete((0, 0)))) == ReplicatedIntOp((0, 0), Delete((0, 0))))
+      assert(ReplicatedIntOp.from(ReplicatedIntOp((LClock(0), RId(0)), Delete((RId(0), NId(0))))) == ReplicatedIntOp((LClock(0), RId(0)), Delete((RId(0), NId(0)))))
     }
 
     // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {
-      val replicated = ReplicatedIntOp((0, 0), Delete((0, 0)))
-      assert(ReplicatedIntOp.unapply(replicated).get == ((0, 0), Delete((0, 0))))
+      val replicated = ReplicatedIntOp((LClock(0), RId(0)), Delete((RId(0), NId(0))))
+      assert(ReplicatedIntOp.unapply(replicated).get == ((LClock(0), RId(0)), Delete((RId(0), NId(0)))))
     }
   }
 }
