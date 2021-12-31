@@ -45,11 +45,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/basic-languages/scheme/scheme.min.js"></script>
 <script>
-    var editor = monaco.editor.create(document.getElementById('container'), {
+    const editor = monaco.editor.create(document.getElementById('container'), {
         language: 'scheme'
     });
 
     let lastSource;
+
+    function setPosition(newPosition) {
+        const newSource = editor.getValue();
+        const textAsArr = newSource.split("");
+        const skippingC = textAsArr.slice(0,newPosition);
+        const lineNumber = 1 + skippingC.filter(c => c === "\n").length;
+        const column = newSource.slice(0, newPosition).split("\n").slice(-1)[0].length + 1;
+        const newPosObj = {column, lineNumber};
+        editor.setPosition(newPosObj);
+    }
 
     // src: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ITextModel.html#onDidChangeContent
     editor.getModel().onDidChangeContent((_) => {
@@ -62,27 +72,14 @@
 
             // src: https://stackoverflow.com/a/50093042
             const position = editor.getModel().getOffsetAt(editor.getPosition())
-            // update code & query new position
-            const newPosition = sourceCodeChange(position, changedSource)
-
-            const newSource = editor.getValue();
-            const textAsArr = newSource.split("");
-            const skippingC = textAsArr.slice(0,newPosition);
-            const lineNumber = 1 + skippingC.filter(c => c === "\n").length;
-            const column = newSource.slice(0, newPosition).split("\n").slice(-1)[0].length + 1;
-            const newPosObj = {column, lineNumber};
-
-            const before = changedSource.slice(0, position).concat("|").concat(changedSource.slice(position));
-            const after = newSource.slice(0, newPosition).concat("|").concat(newSource.slice(newPosition));
-            console.log(`Before at ${position}\n${before}`);
-            console.log(`After at ${newPosition}\n${after}`);
-            console.log(newPosObj);
-            editor.setPosition(newPosObj);
+            // update code & new position
+            sourceCodeChange(position, changedSource)
         }, 0)
     });
 
-    function updateSourceCode(newSourceCode) {
+    function updateSourceCode(newPosition, newSourceCode) {
         editor.setValue(newSourceCode)
+        setPosition(newPosition)
     }
 </script>
 <!-- Include Scala.js compiled code -->

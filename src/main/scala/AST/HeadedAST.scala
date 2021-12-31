@@ -1,5 +1,7 @@
 package AST
 
+import AST.Edit.AstEdit
+import AST.GumTree.{GumTreeAlgorithm, MinimumEditScript}
 import AST.Node.SchemeNode.{LeafNode, PreOrder, RecursiveNode}
 import AST.Node._
 
@@ -8,6 +10,11 @@ object HeadedAST {
 
   def withRoot[Identity](root: SchemeNode[Identity]): HeadedAST[Identity] =
     HeadedAST(Map(root.id -> root), Some(root.id))
+
+  def computeChanges[Identity](before: HeadedAST[Identity], after: HeadedAST[Identity]): Seq[AstEdit[Identity]] = {
+    val mapping = GumTreeAlgorithm(before, after).mappings(before.root.get, after.root.get)
+    new MinimumEditScript(before, after, mapping).compute()
+  }
 }
 
 case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root: Option[Identity]) {

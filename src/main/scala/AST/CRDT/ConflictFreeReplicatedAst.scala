@@ -2,7 +2,7 @@ package AST.CRDT
 
 import AST.{HeadedAST, TX}
 
-class ConflictFreeReplicatedAst[Identity, EditIdentity](start: HeadedAST[Identity],
+class ConflictFreeReplicatedAst[Identity, EditIdentity](var start: HeadedAST[Identity],
                                                         implicit val ordering: Ordering[EditIdentity],
                                                         transmitter: TX[ReplicatedOperation[Identity, EditIdentity]]) {
 
@@ -23,5 +23,7 @@ class ConflictFreeReplicatedAst[Identity, EditIdentity](start: HeadedAST[Identit
 
   // Gets called whenever new operations come in over the wire
   def merge(newOperations: Seq[ReplicatedOperation[Identity, EditIdentity]]): Unit =
-    operations = operations ++ newOperations
+    operations = (operations ++ newOperations).sorted
 }
+
+// TODO: potential improvement could be to incrementally sort and keep a sorted cache
