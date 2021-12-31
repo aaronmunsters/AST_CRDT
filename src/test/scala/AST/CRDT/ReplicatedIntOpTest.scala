@@ -1,6 +1,6 @@
 package AST.CRDT
 
-import AST.CRDT.ReplicatedIntOp.{LClock, RId, NId}
+import AST.CRDT.ReplicatedIntOp.{LClock, NId, RId}
 import AST.Edit.AstEdit.{Add, Delete, Move}
 import AST.Edit.{AstEdit, UpdateValue}
 import AST.Node.SchemeNode
@@ -10,7 +10,6 @@ import utest.{TestSuite, Tests, test}
 object ReplicatedIntOpTest extends TestSuite {
   override def tests: Tests = Tests {
 
-
     test("Serialization and deserialization") {
       val options = Seq(
         None,
@@ -18,18 +17,18 @@ object ReplicatedIntOpTest extends TestSuite {
       )
 
       val nodes: Seq[Option[(RId, NId)] => SchemeNode[(RId, NId)]] = Seq(
-        (option: Option[(RId, NId)]) => SchemeExpression(0, 1, (RId(0), NId(2)), option, Seq((RId(0), NId(1)))),
-        (option: Option[(RId, NId)]) => SchemeNumber(0, 1, (RId(0), NId(2)), option, 123456),
-        (option: Option[(RId, NId)]) => SchemeIdentifier(0, 1, (RId(0), NId(2)), option, "foobar"),
-        (option: Option[(RId, NId)]) => SchemeString(0, 1, (RId(0), NId(2)), option, "some string")
+        SchemeExpression(0, 1, (RId(0), NId(2)), _, Seq((RId(0), NId(1)))),
+        SchemeNumber(0, 1, (RId(0), NId(2)), _, 123456),
+        SchemeIdentifier(0, 1, (RId(0), NId(2)), _, "foobar"),
+        SchemeString(0, 1, (RId(0), NId(2)), _, "some string")
       )
 
       val operations: Seq[(SchemeNode[(RId, NId)], Option[(RId, NId)]) => AstEdit[(RId, NId)]] = Seq(
-        (tree: SchemeNode[(RId, NId)], identity: Option[(RId, NId)]) => Add(tree, identity, 0),
-        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => Delete((RId(0), NId(0))),
-        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => Move((RId(0), NId(0)), (RId(0), NId(1)), 2),
-        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => UpdateValue((RId(0), NId(0)), 10L),
-        (_: SchemeNode[(RId, NId)], _: Option[(RId, NId)]) => UpdateValue((RId(0), NId(0)), "HelloWorld"),
+        (tree, identity) => Add(tree, identity, 0),
+        (_, _) => Delete((RId(0), NId(0))),
+        (_, _) => Move((RId(0), NId(0)), (RId(0), NId(1)), 2),
+        (_, _) => UpdateValue((RId(0), NId(0)), 10L),
+        (_, _) => UpdateValue((RId(0), NId(0)), "HelloWorld"),
       )
 
       for {
