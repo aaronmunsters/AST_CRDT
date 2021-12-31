@@ -69,21 +69,38 @@ object ConflictFreeReplicatedIntAstTest extends TestSuite {
       }
 
       // TODO: merge to use of Set.subsets() => see code below
-//      for (operations_subset <- operations.toSet.subsets()) {
-//        val network: mutable.Set[MockedTransmitter] = mutable.Set.empty
-//        val CFR_IA_Ordered = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
-//        val CFR_IA_Shuffled = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
-//
-//        val operations = operations_subset.toSeq
-//        CFR_IA_Ordered merge operations
-//        // src: https://alvinalexander.com/source-code/scala-how-to-shuffle-list-randomize/
-//        CFR_IA_Shuffled merge rnd.shuffle(operations)
-//
-//        assert(CFR_IA_Ordered.query isomorphic CFR_IA_Shuffled.query)
-//      }
+      //      for (operations_subset <- operations.toSet.subsets()) {
+      //        val network: mutable.Set[MockedTransmitter] = mutable.Set.empty
+      //        val CFR_IA_Ordered = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
+      //        val CFR_IA_Shuffled = new ConflictFreeReplicatedIntAst(1, new MockedTransmitter(network))
+      //
+      //        val operations = operations_subset.toSeq
+      //        CFR_IA_Ordered merge operations
+      //        // src: https://alvinalexander.com/source-code/scala-how-to-shuffle-list-randomize/
+      //        CFR_IA_Shuffled merge rnd.shuffle(operations)
+      //
+      //        assert(CFR_IA_Ordered.query isomorphic CFR_IA_Shuffled.query)
+      //      }
     }
 
-    // TODO: test for changes and retrieving positions (or where that functionality lies)
+    test("Position updates are correct") {
+      def chars_before_after(pos: Int, text: String) = Seq(text.take(pos).last,text.drop(pos).head)
+
+      object EmptyTransmitter extends TX[ReplicatedOperation[(Int, Int), (Int, Int)]] {
+        override def publish(value: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]]): Unit = ()
+
+        override def subscribe(callback: Seq[ReplicatedOperation[(Int, Int), (Int, Int)]] => Unit): Unit = ()
+      }
+
+      val conflictFreeReplicatedIntAst = ConflictFreeReplicatedIntAst(0, EmptyTransmitter)
+      conflictFreeReplicatedIntAst.update(0, "(define foo bar)")
+      val oldSource = "(define foo bar)"
+      val oldPos = 10 //         `--> between the o's of 'FOO'
+      assert(chars_before_after(oldPos, oldSource) == Seq('o','o'))
+
+      val (newPos, newSource) = ConflictFreeReplicatedIntAst.passiveUpdate(oldPos, oldSource, conflictFreeReplicatedIntAst)
+      assert(chars_before_after(oldPos, oldSource) == chars_before_after(newPos, newSource))
+    }
 
     // This helps to achieve 100% code coverage
     test("Case class behaviour as expected") {

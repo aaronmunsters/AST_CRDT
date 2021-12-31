@@ -25,7 +25,7 @@
     const peer = new Peer();
     const connections = [];
     peer.on('open', (id) => peerIdSpan.textContent = id);
-    peer.on('connection', (connection) => connection.on('data', (data) => receiveRemoteUpdate(data)));
+    peer.on('connection', (connection) => connection.on('data', (data) => receiveRemoteUpdate(getPosition(), data)));
 
     function connectRemotePeer() {
         const remoteId = remoteSpan.value.trim();
@@ -61,6 +61,11 @@
         editor.setPosition(newPosObj);
     }
 
+    function getPosition() {
+        // src: https://stackoverflow.com/a/50093042
+        return editor.getModel().getOffsetAt(editor.getPosition())
+    }
+
     // src: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ITextModel.html#onDidChangeContent
     editor.getModel().onDidChangeContent((_) => {
         setTimeout(() => {
@@ -70,10 +75,8 @@
             if(lastSource === changedSource) return;
             lastSource = changedSource;
 
-            // src: https://stackoverflow.com/a/50093042
-            const position = editor.getModel().getOffsetAt(editor.getPosition())
             // update code & new position
-            sourceCodeChange(position, changedSource)
+            sourceCodeChange(getPosition(), changedSource)
         }, 0)
     });
 

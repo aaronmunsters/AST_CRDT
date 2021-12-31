@@ -34,11 +34,12 @@ object TutorialApp {
   private val localReplica = ConflictFreeReplicatedIntAst(new Random().nextInt(), PeerJS_Transmitter)
 
   @JSExportTopLevel("receiveRemoteUpdate")
-  def receiveRemoteUpdate(data: ArrayBuffer): Unit = {
+  def receiveRemoteUpdate(oldPosition: Int, data: ArrayBuffer): Unit = {
+    val oldSource = localReplica.query.toPrettyAstString()
     val operation = ReplicatedIntOp.deserialize(TypedArrayBuffer.wrap(data))
     PeerJS_Transmitter.local_callback.get(Seq(operation))
-    // TODO: provide old position before update takes place
-    updateSourceCode(0, localReplica.query.toPrettyAstString())
+    val (newPosition, newSource) = ConflictFreeReplicatedIntAst.passiveUpdate(oldPosition, oldSource, localReplica)
+    updateSourceCode(newPosition, newSource)
   }
 
   @JSExportTopLevel("sourceCodeChange")

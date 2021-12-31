@@ -35,9 +35,7 @@ case class ConflictFreeReplicatedIntAst(final val replicaIdentity: Int, private 
       changes = computeChanges(query, updated).map(ReplicatedIntOp(newEditIdentity, _))
       if changes.nonEmpty
       _ = update(changes)
-      pos = query.idAtConsidering(position, changedSource, getNodeIdGenerator(replicaIdentity))
-        .map { case (identity, offset) => query.startPos(identity) + offset }
-        .getOrElse(0)
+      pos = ConflictFreeReplicatedIntAst.newPos(query, position, changedSource).getOrElse(0)
     } yield (pos, query.toPrettyAstString())
   }
 }
@@ -61,5 +59,17 @@ object ConflictFreeReplicatedIntAst {
       id = id + 1
       (replicaIdentity, id)
     }
+  }
+
+  private def getMeaninglessNodeIdGenerator = getNodeIdGenerator(0)
+
+  protected def newPos(headedAST: HeadedAST[(Int, Int)], oldPos: Int, oldSource: String): Option[Int] =
+    headedAST.idAtConsidering(oldPos, oldSource, getMeaninglessNodeIdGenerator)
+      .map { case (identity, offset) => headedAST.startPos(identity) + offset }
+
+  def passiveUpdate(oldPosition: Int, oldSource: String, updatedReplica: ConflictFreeReplicatedIntAst): (Int, String) = {
+    val newPosition = newPos(updatedReplica.query, oldPosition, oldSource).getOrElse(0)
+    val newSource = updatedReplica.query.toPrettyAstString()
+    (newPosition, newSource)
   }
 }
