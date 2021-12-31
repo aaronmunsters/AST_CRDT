@@ -10,7 +10,6 @@ object Delete {
 
   def perform[Identity](ast: HeadedAST[Identity], delete: Delete[Identity]): HeadedAST[Identity] = delete match {
     case AST.Edit.AstEdit.Delete(target) if ast hasRoot target => HeadedAST.empty
-    case AST.Edit.AstEdit.Delete(target) if !(ast contains target) => ast
     case AST.Edit.AstEdit.Delete(target) =>
       // Ast contains node and it is not the root
       val targetTree = ast.header(target)

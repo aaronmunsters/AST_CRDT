@@ -22,7 +22,11 @@ case class HeadedAST[Identity](header: Map[Identity, SchemeNode[Identity]], root
 
   def apply(identity: Identity): SchemeNode[Identity] = header(identity)
 
-  def perform(edit: Edit.AstEdit[Identity]): HeadedAST[Identity] = edit.perform(this)
+  def perform(edit: Edit.AstEdit[Identity]): HeadedAST[Identity] = {
+    // performing an edit checks if all preconditions are satisfied,
+    // otherwise do not apply the edit (opting for availability)
+    if(edit upholds_preconditions this) edit perform this else this
+  }
 
   def contains(identity: Identity): Boolean = header contains identity
 

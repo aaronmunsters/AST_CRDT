@@ -14,19 +14,15 @@ object UpdateValue {
 
   def perform[Value, Identity](ast: HeadedAST[Identity], updateValue: UpdateNumber[Identity]): HeadedAST[Identity] = updateValue match {
     case AST.Edit.AstEdit.UpdateNumber(target, value) =>
-      ast.header.get(target) match {
-        case None => ast
-        case Some(targetTree) =>
-          ast.copy(header = ast.header.updated(target, targetTree.asInstanceOf[LeafNode[Identity, Long]].withValue(value)))
-      }
+      assert(ast contains target)
+      ast.copy(header =
+        ast.header.updated(target, ast(target).asInstanceOf[LeafNode[Identity, Long]].withValue(value)))
   }
 
   def perform[Value, Identity](ast: HeadedAST[Identity], updateValue: UpdateString[Identity]): HeadedAST[Identity] = updateValue match {
     case AST.Edit.AstEdit.UpdateString(target, value) =>
-      ast.header.get(target) match {
-        case None => ast
-        case Some(targetTree) =>
-          ast.copy(header = ast.header.updated(target, targetTree.asInstanceOf[LeafNode[Identity, Seq[Char]]].withValue(value)))
-      }
+      assert(ast contains target)
+      ast.copy(header =
+        ast.header.updated(target, ast(target).asInstanceOf[LeafNode[Identity, Seq[Char]]].withValue(value)))
   }
 }

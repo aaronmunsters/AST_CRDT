@@ -19,7 +19,7 @@ class ConflictFreeReplicatedAst[Identity, EditIdentity](var start: HeadedAST[Ide
 
   // Gets called whenever the data structure needs to be viewed
   def query: HeadedAST[Identity] =
-    operations.map(_.edit).foldLeft(start)((ast, op) => op perform ast)
+    operations.map(_.edit).foldLeft(start)((ast, op) => ast perform op)
 
   // Gets called whenever new operations come in over the wire
   def merge(newOperations: Seq[ReplicatedOperation[Identity, EditIdentity]]): Unit =
