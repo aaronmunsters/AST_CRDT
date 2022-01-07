@@ -17,8 +17,7 @@ scalaJSUseMainModuleInitializer := true
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
 
 // Adding support for writing tests
-libraryDependencies += "com.lihaoyi" %%% "utest" % "0.7.4" % "test"
-testFrameworks += new TestFramework("utest.runner.Framework")
+libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.10" % "test"
 
 // Adding support for parsing
 libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3"

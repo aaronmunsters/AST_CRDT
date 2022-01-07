@@ -1,38 +1,36 @@
 package AST.Node
 
-import utest.{TestSuite, Tests, test}
 import AST.Node.SchemeNode._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-object SchemeStringTest extends TestSuite {
-  override def tests: Tests = Tests {
-    test("SchemeStringTest operations") {
-      val expression: SchemeString[Double] =
-        SchemeString[Double](0, 0, 0, None, "foo bar baz")
+class SchemeStringTest extends AnyWordSpecLike with Matchers {
 
-      test("`sameLabel` should hold for expressions") {
-        assert(expression sameLabel (expression withValue "value"))
-        assert(!(expression sameLabel SchemeIdentifier(0, 0, 0, None, "foobar")))
-      }
+  val expression: SchemeString[Double] =
+    SchemeString[Double](0, 0, 0, None, "foo bar baz")
 
-      test("`sameValue` should only hold for string nodes with the same string content") {
-        assert(expression.sameValue(SchemeString[Double](10, 20, 30, None, "foo bar baz")))
-        assert(!expression.sameValue(SchemeString[Double](10, 20, 30, None, "foo foo foo")))
-      }
+  "`sameLabel` should hold for expressions" in {
+    assert(expression sameLabel (expression withValue "value"))
+    assert(!(expression sameLabel SchemeIdentifier(0, 0, 0, None, "foobar")))
+  }
 
-      test("`withParent` and `withValue` should replace the parent and value respectively") {
-        assert(expression.withParent(123456).parent.contains(123456))
-        assert(expression.withValue("new foo").value == "new foo".toSeq)
-      }
+  "`sameValue` should only hold for string nodes with the same string content" in {
+    assert(expression.sameValue(SchemeString[Double](10, 20, 30, None, "foo bar baz")))
+    assert(!expression.sameValue(SchemeString[Double](10, 20, 30, None, "foo foo foo")))
+  }
 
-      test("`toAstString` should include the quotation marks") {
-        assert(expression.toAstString(null) == "\"foo bar baz\"")
-      }
-    }
+  "`withParent` and `withValue` should replace the parent and value respectively" in {
+    assert(expression.withParent(123456).parent.contains(123456))
+    assert(expression.withValue("new foo").value == "new foo".toSeq)
+  }
 
-    // This helps to achieve 100% code coverage
-    test("Case class behaviour as expected") {
-      val string = SchemeString(0, 1, 2, Some(3), "123456789")
-      assert(SchemeString.unapply(string).get == (0, 1, 2, Some(3), "123456789".toSeq))
-    }
+  "`toAstString` should include the quotation marks" in {
+    assert(expression.toAstString(null) == "\"foo bar baz\"")
+  }
+
+  // This helps to achieve 100% code coverage
+  "Case class behaviour as expected" in {
+    val string = SchemeString(0, 1, 2, Some(3), "123456789")
+    assert(SchemeString.unapply(string).get == (0, 1, 2, Some(3), "123456789".toSeq))
   }
 }

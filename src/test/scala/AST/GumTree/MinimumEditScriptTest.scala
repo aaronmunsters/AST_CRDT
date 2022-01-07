@@ -2,9 +2,10 @@ package AST.GumTree
 
 import AST.Parse.Parser
 import AST.TestUtils.getIdGenerator
-import utest.{TestSuite, Tests, test}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-object MinimumEditScriptTest extends TestSuite {
+class MinimumEditScriptTest extends AnyWordSpecLike with Matchers {
   def assertSuccessTransformation(from_source: String, to_source: String): Unit = {
     val getIdentity = getIdGenerator
     val from = Parser.parse(from_source, getIdentity).get
@@ -22,42 +23,42 @@ object MinimumEditScriptTest extends TestSuite {
     assert(transformed_string == to_string)
   }
 
-  override def tests: Tests = Tests {
-    test("Basic") {
-      assertSuccessTransformation("((a))", "(a)")
-    }
 
-    test("transformations") {
-      assertSuccessTransformation(
-        "(define a 10)",
-        "(define b 10)"
-      )
-      assertSuccessTransformation(
-        "(define a b)",
-        "(define b a)"
-      )
-      assertSuccessTransformation(
-        "(define c a b)",
-        "(define b a)"
-      )
-      assertSuccessTransformation(
-        "(begin (define a 10) (define c 20) c a b)",
-        "(define b a)"
-      )
-      assertSuccessTransformation(
-        "(begin (define a 10) (define c 20) c a b)",
-        "(define b a)"
-      )
-      assertSuccessTransformation(
-        "(begin)",
-        "(define b a)"
-      )
+  "Basic" in {
+    assertSuccessTransformation("((a))", "(a)")
+  }
 
-      assertSuccessTransformation("(((c) (d)))", "(((e) (d)))")
+  "transformations" in {
+    assertSuccessTransformation(
+      "(define a 10)",
+      "(define b 10)"
+    )
+    assertSuccessTransformation(
+      "(define a b)",
+      "(define b a)"
+    )
+    assertSuccessTransformation(
+      "(define c a b)",
+      "(define b a)"
+    )
+    assertSuccessTransformation(
+      "(begin (define a 10) (define c 20) c a b)",
+      "(define b a)"
+    )
+    assertSuccessTransformation(
+      "(begin (define a 10) (define c 20) c a b)",
+      "(define b a)"
+    )
+    assertSuccessTransformation(
+      "(begin)",
+      "(define b a)"
+    )
 
-      // src: https://riptutorial.com/scheme/example/10903/quicksort
-      assertSuccessTransformation(
-        """
+    assertSuccessTransformation("(((c) (d)))", "(((e) (d)))")
+
+    // src: https://riptutorial.com/scheme/example/10903/quicksort
+    assertSuccessTransformation(
+      """
         (define (quicksort lst)
           (cond
             ((or (isnull lst)
@@ -73,7 +74,7 @@ object MinimumEditScriptTest extends TestSuite {
                   (quicksort
                     (filter (lambda (x) (gte x pivot)) rest)))))))
         """,
-        """
+      """
         (define (quicksort lst)
           (cond
             ((or (isnull lst)
@@ -89,9 +90,8 @@ object MinimumEditScriptTest extends TestSuite {
                   (quicksort
                     (filter (lambda (y) (gte x pivot)) rest)))))))
         """)
-      assertSuccessTransformation("(a)", "((a))")
-      assertSuccessTransformation("()", "(a)")
-      assertSuccessTransformation("(a)", "((a) ((((a)))) (a))")
-    }
+    assertSuccessTransformation("(a)", "((a))")
+    assertSuccessTransformation("()", "(a)")
+    assertSuccessTransformation("(a)", "((a) ((((a)))) (a))")
   }
 }
