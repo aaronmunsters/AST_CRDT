@@ -16,7 +16,9 @@ JavaScript engine.
 
 Any time the local source code is changed, the edits are computed by comparing the old and new AST.
 These edits are then transformed into an edit script, which is then shared across the network with other replica's such
-that they can apply the same edits in the same order, resulting in all replica's representing the same state.  
+that they can apply the same edits in the same order, resulting in all replica's representing the same state.
+
+For more, refer to the [included report](./documentation/main.pdf).
 
 ## 🧑‍🔧 Usage
 
