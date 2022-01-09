@@ -1,0 +1,100 @@
+* {
+    box-sizing: border-box;
+}
+
+#container {
+    width: 800px;
+    height: 600px;
+    border: 10px solid #59656F;
+    margin: 1rem 0;
+}
+
+body {
+    background-color: #1d1e2c;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 800px;
+}
+
+a {
+    color: inherit;
+}
+
+.content-row > span, input, button, p {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: large;
+    text-wrap: normal;
+}
+
+.content-box > h1, .content-box > h2 {
+    text-align: center;
+}
+
+input {
+    width: 22rem;
+    text-align: center;
+    border-radius: 50px 0 0 50px;
+    padding: .6em;
+    border: none;
+    height: 100%;
+    text-transform: uppercase;
+}
+
+.content-box {
+    width: 100%;
+    margin: 1rem 0;
+    background-color: #59656F;
+    color: #d7cdcc;
+    padding: 1rem 5rem;
+    border-radius: 20px;
+}
+
+.content-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 1rem 0;
+}
+
+button {
+    background-color: #d7cdcc;
+    border-radius: 0 10px 10px 0;
+    border: none;
+    padding: .6em;
+    color: #1d1e2c;
+    min-width: 6rem;
+    transition: 0.5s;
+}
+
+button.connect::after {
+    content: "🌐";
+    margin: 0.3rem;
+}
+
+button.copy::after {
+    content: "to 📋";
+    margin: 0.3rem;
+}
+
+button:hover {
+    background-color: #9c528b;
+}
+
+button:active {
+    transition: 0.1s;
+    background-color: #ffffff;
+}
+
+#warning * {
+    text-decoration: red underline;
+}

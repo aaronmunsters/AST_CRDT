@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>CRDT AST</title>
+    <link
+            rel="stylesheet"
+            data-name="vs/editor/editor.main"
+            href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.min.css"
+    />
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="app-container">
+    <div class="content-box">
+        <h1>AST CRDT</h1>
+        <div class="content-row">
+            <span>Local ID: </span>
+            <div>
+                <input type="text" id="peerId" disabled/>
+                <button class="copy" onclick="local_id_to_clipboard()">Copy</button>
+            </div>
+        </div>
+        <div class="content-row">
+            <span>Remote ID: </span>
+            <div>
+                <input type="text" id="remote-peer-id"/>
+                <button class="connect" onclick="connectRemotePeer()">Connect</button>
+            </div>
+        </div>
+    </div>
+    <div id="warning" class="content-box">
+        <div class="content-row">
+            <span>Warning: no connection has been established!</span>
+        </div>
+    </div>
+    <div id="container"></div>
+    <div class="content-box">
+        <h2>About</h2>
+        <div class="content-row">
+            <p>
+                Hello there! This page is a prototype implementation of a CRDT AST.
+                How should you use it? Copy the 'Local ID' above and give it to another developer
+                that also has this page open. That other developer should paste that ID into the 'Remote ID'
+                field and click connect, while they should share their ID with you, and you should connect to them too.
+                <br><br>
+                Once that has happened, you can start writing
+                <a href="https://en.wikipedia.org/wiki/Scheme_(programming_language)">Scheme</a> programs in the editor,
+                at the same time others are doing so too! Curious for the source? Then check out the
+                <a href="https://github.com/aaronmunsters/AST_CRDT">Github page</a>.
+            </p>
+        </div>
+
+    </div>
+</div>
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<!-- src: https://github.com/microsoft/monaco-editor/blob/main/samples/browser-script-editor/index.html -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/loader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.nls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/editor/editor.main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.31.0-dev.20211208/min/vs/basic-languages/scheme/scheme.min.js"></script>
+<script>
+    let local_id = "";
+    const peerIdSpan = document.getElementById("peerId");
+    const remoteSpan = document.getElementById("remote-peer-id");
+    const ncnWarning = document.getElementById("warning")
+
+    const peer = new Peer();
+    const connections = [];
+    peer.on("open", (id) => {
+        peerIdSpan.value = id;
+        local_id = id;
+    });
+    peer.on("connection", (connection) => {
+        connection.on("data", (data) =>
+            receiveRemoteUpdate(getPosition(), data)
+        )
+    });
+
+    function connectRemotePeer() {
+        const remoteId = remoteSpan.value.trim();
+        remoteSpan.value = "";
+        if (remoteId.length === 0) return;
+        const connection = peer.connect(remoteId);
+        connection.on("open", () => {
+            ncnWarning.style.display = "none";
+            connections.push(connection)
+        });
+    }
+
+    function publish(data) {
+        connections.forEach((connection) => connection.send(data));
+    }
+
+    // src: https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
+    const local_id_to_clipboard = () =>
+        navigator.clipboard.writeText(local_id);
+
+    const editor = monaco.editor.create(
+        document.getElementById("container"),
+        {
+            language: "scheme",
+        }
+    );
+
+    let lastSource;
+
+    function setPosition(newPosition) {
+        const newSource = editor.getValue();
+        const textAsArr = newSource.split("");
+        const skippingC = textAsArr.slice(0, newPosition);
+        const lineNumber = 1 + skippingC.filter((c) => c === "\n").length;
+        const column =
+            newSource.slice(0, newPosition).split("\n").slice(-1)[0].length + 1;
+        const newPosObj = {column, lineNumber};
+        editor.setPosition(newPosObj);
+    }
+
+    function getPosition() {
+        // src: https://stackoverflow.com/a/50093042
+        return editor.getModel().getOffsetAt(editor.getPosition());
+    }
+
+    // src: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.ITextModel.html#onDidChangeContent
+    editor.getModel().onDidChangeContent((_) => {
+        setTimeout(() => {
+            // src: https://stackoverflow.com/a/38092508
+            const changedSource = editor.getValue();
+
+            if (lastSource === changedSource) return;
+            lastSource = changedSource;
+
+            // update code & new position
+            sourceCodeChange(getPosition(), changedSource);
+        }, 0);
+    });
+
+    function updateSourceCode(newPosition, newSourceCode) {
+        editor.setValue(newSourceCode);
+        setPosition(newPosition);
+    }
+</script>
+<!-- Include Scala.js compiled code -->
+<script
+        type="text/javascript"
+        src="./main.js"
+></script>
+</body>
+</html>
