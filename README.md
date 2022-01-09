@@ -35,7 +35,7 @@ Since compilation to JavaScript is supported through ScalaJS, you can try this p
 Clone the repo, open sbt and run `fastLinkJS` (to compile to JavaScript), after which you can open `index.html` to start
 the project.
 
-![Demo Gif](media/ast_crdt_demo.gif)
+![Demo Gif](docs/ast_crdt_demo.gif)
 
 ## 🧪 Tests
 
