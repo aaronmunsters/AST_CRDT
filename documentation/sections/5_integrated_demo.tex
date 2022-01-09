@@ -1,0 +1,63 @@
+\section{Integrated Demo}\label{sec:integrated-demo}
+
+The project comes included with a working prototype.
+The prototype uses the \mintinline{scala}{ConflictFreeReplicatedIntAst} class which extends the
+\mintinline{scala}{ConflictFreeReplicatedAst} class.
+It provides concrete types for the \mintinline{scala}{Identity} generic (as a pair of the replica identity combined
+with a unique integer) and the \mintinline{scala}{EditIdentity} generic (as a pair of a Lamport clock in combination
+with a replica identity) as Listing~\ref{code:instantiation-for-demo} shows\footnote{
+    By having the case classes extend \mintinline{scala}{AnyVal}, the compiler handles these as value classes.
+    This allows for compile-time safety to not mix up types while keeping a low memory footprint by representing the
+    values as integers at runtime.
+}.
+
+\begin{listing}
+    \begin{minted}[fontsize=\footnotesize]{scala}
+// file: ReplicatedIntOp.scala
+case class NId(id: Int) extends AnyVal
+case class LClock(count: Int) extends AnyVal
+case class RId(identity: Int) extends AnyVal
+
+// file: ConflictFreeReplicatedAst.scala
+class ConflictFreeReplicatedAst[
+    Identity,
+    EditIdentity
+](...){...}
+
+// file: ConflictFreeReplicatedAst.scala
+case class ConflictFreeReplicatedIntAst(...)
+    extends ConflictFreeReplicatedAst[
+        (RId, NId),
+        (LClock, RId)
+    ](...){...}
+    \end{minted}
+    \caption{
+        Code snippets across three files demonstrating how the \mintinline{scala}{ConflictFreeReplicatedAst} is
+        specialized for the demo.
+        The identity of AST nodes is represented as a pair of a replica identity and a node identity.
+        The identity of edit operations is represented as a pair of a Lamport clock and a replica identity.
+    }
+    \label{code:instantiation-for-demo}
+\end{listing}
+
+\begin{sloppypar}
+    The \mintinline{scala}{ConflictFreeReplicatedIntAst} class and the \mintinline{scala}{ReplicatedIntOp} class are the
+    dependencies used by the \mintinline{scala}{CRDT_AST_ScalaJS} object, which is the interfacing file with the JavaScript
+    codebase that makes the demo possible in a web browser.
+\end{sloppypar}
+
+The demo uses the \href{https://microsoft.github.io/monaco-editor/}{Monaco Editor}, which is the same editor
+that is used in the VS Code editor.
+Through a correct configuration during setup this enables syntax highlighting for Scheme-like languages.
+Throughout the lifetime of the code whenever the code is changed the AST is kept formatted in the browser to ensure
+all replica's with the same operations have the same view.
+
+To enable the propagation of operations for the operation-based CRDT, the demo uses the
+\href{https://peerjs.com/}{PeerJS library}.
+This is a JavaScript library that allows setting up peer-to-peer connections between different clients on the web using
+the WebRTC standard.
+This network setup is used but can be interchanged with other configurations such as a client-server setup.
+
+Through the use of the \href{https://github.com/suzaku-io/boopickle}{BooPickle library}, the operations that need to be
+sent over the wire are serialized to bytes before they are transmitted to other peers.
+By doing so rather than sending textual representations the demo aims to maintain a low network load.

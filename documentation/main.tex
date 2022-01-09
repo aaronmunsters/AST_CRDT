@@ -1,0 +1,74 @@
+\documentclass[sigplan,screen,10pt]{acmart}
+
+% src: https://tex.stackexchange.com/a/346309
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{minted}
+\usepackage{natbib}
+
+\begin{document}
+%    \sloppy
+
+    \title{A Conflict-Free Replicated Abstract Syntax Tree}
+
+    \author{A\"aron Munsters}
+    \affiliation{
+        \institution{Vrije Universiteit Brussel}
+        \city{Brussels}
+        \country{Belgium}}
+    \email{aaron.sarah-louise.munsters@vub.be}
+
+        \begin{abstract}
+            With the rise of remote work, remote real-time collaborative code editing is gaining popularity while
+            lacking dedicated tooling support.
+            This work tackles this limitation by proposing a technique to provide real-time high-availability code
+            editors through modelling the editor-underlying abstract syntax tree as a conflict-free replicated
+            data-structure.
+            On top of the CRDT implementation, a demo web-based editor for a small Scheme-like language is built to
+            assess the viability of this approach.
+        \end{abstract}
+
+    \maketitle
+    \pagestyle{plain} % src: https://tex.stackexchange.com/a/304129
+
+    %   Introduction
+    \input{sections/1_introduction.tex}
+
+    %   A Replicated Conflict Free Abstract Syntax Tree
+    \input{sections/2_a_crast.tex}
+
+    %   Computing AST changes
+    \input{sections/3_computing_ast_changes.tex}
+
+    %   The Abstract Syntax Tree
+    \input{sections/4_implementing_the_abstract_syntax_tree.tex}
+
+    %   Integrated demo
+    \input{sections/5_integrated_demo.tex}
+
+    %   Tests
+    \input{sections/6_tests.tex}
+
+    %   Future Work
+    \input{sections/7_future_work.tex}
+    % Optional, more technical: add support for F-bounded polymorphism for AST operations
+    % source: https://twitter.github.io/scala_school/advanced-types.html#fbounded
+
+    %   Conclusion
+    \input{sections/8_conclusion.tex}
+
+
+    %   Related Work
+    % https://github.com/juji-io/editscript
+    % https://github.com/automerge/automerge
+
+    %   References
+    \bibliographystyle{ACM-Reference-Format}
+    \bibliography{bibliography}
+
+\end{document}

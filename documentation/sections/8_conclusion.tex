@@ -1,0 +1,11 @@
+\section{Conclusion}\label{sec:conclusion}
+
+This work covers an alternative strategy to implement a real-time collaborative code editor to overcome the limitations
+that arise for traditional editors that do not reason about their content.
+It does so by modeling the underlying AST as a conflict-free replicated data type.
+The implementation covers a minimal set of nodes, demonstrating the capability of the merging strategy to resolve
+conflicts for different concurrent operations.
+The strategy is mainly based on the inclusion of a logical timestamp allowing for an ordering of events that allows the
+data structure to recompute the AST including newly received updates.
+Even so, certain optimizations are in order to improve the conflict resolution, either by inclusion of developer-roles
+or by shifting the merge granularity.

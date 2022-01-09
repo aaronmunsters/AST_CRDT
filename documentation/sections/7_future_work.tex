@@ -1,0 +1,33 @@
+\section{Future Work}\label{sec:future-work}
+
+Different improvements for the current implementation are discussed below.
+
+\begin{itemize}
+    \item \textbf{Arbitrary order of operations.}\\
+    A limitation for the current implementation is that the merge strategy performs an ordering of the concurrent
+    operations in an arbitrary order (in the prototype this is based on the replica identity), though deterministic
+    there is no meaning as to which replica performs the winning operations\footnote{
+        The mentioned 'no winning operation' statement holds only for concurrent operations on nodes that are already
+        present on both replica's, say one replica updates a literal number to negative infinity while concurrently
+        another replica updates the value to positive infinity, the result actual result will be an arbitrary operation
+        based on the replica identities.
+        For the addition of new nodes, no issues arise.
+    }.
+
+    An improvement hereto could be to assign developer roles through the user interface, allowing to sort the operations
+    in an order that the hierarchically higher roles their operations are prioritized to win over other operations.
+    An alternative improvement could be for the user interface to prompt the user to decide which action should
+    dominate.
+
+    \item \textbf{Merge granularity.}\\
+    The merges take place on a granularity of happening on a per-node basis.
+    Though sufficiently powerful, different merging strategies could be desired based on the types of nodes that are
+    being affected, two examples are provided.
+
+    For string literal nodes, two concurrent updates will only take into account the final operation after the sort to
+    have taken place, while it would be more optimal to delegate the update operations to the string node to further
+    apply the operations that are appropriate to merge text, similar to text editors.
+
+    For literal set nodes, two concurrent additions of an equal value would duplicate the content, while this does not
+    make sense for set nodes thus it would be the desired effect to prevent the double addition of the content.
+\end{itemize}

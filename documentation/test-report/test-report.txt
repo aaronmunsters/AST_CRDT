@@ -1,0 +1,10 @@
+[info] welcome to sbt 1.5.5 (Ubuntu Java 11.0.13)
+[info] loading global plugins from /home/aaron/.sbt/1.0/plugins
+[info] loading settings for project crdt_ast-build from plugins.sbt ...
+[info] loading project definition from /home/aaron/Documents/VUB/2MA/ccbd/ASSIGNMENTS/CRDT_AST/project
+[info] loading settings for project crdt_ast from build.sbt ...
+[info] set current project to Scala.js Tutorial (in build file:/home/aaron/Documents/VUB/2MA/ccbd/ASSIGNMENTS/CRDT_AST/)
+[info] ReplicatedIntOpTest:
+[info] - Serialization and deserialization
+[info] - Construction method
+[info] - Case class behaviour as expected

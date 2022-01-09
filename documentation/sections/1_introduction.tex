@@ -1,0 +1,84 @@
+\section{Introduction}\label{sec:introduction}
+
+With telecommuting on the rise, collaboratively working on a single code base in real-time is gaining traction.
+The code editor Visual Studio Code, which is the current leading choice of IDE\footnote{As is reported by the
+% https://insights.stackoverflow.com/survey/2021#section-most-popular-technologies-integrated-development-environment
+\href{
+    https://insights.stackoverflow.com/survey/2021\#section-most-popular-technologies-integrated-development-environment
+}{2021 Stack Overflow Developer Survey}}, promotes the
+\href{https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare}{Live Share extension}
+as part of its top 50 most installed extensions\footnote{As was displayed on the
+\href{https://marketplace.visualstudio.com/search?target=VSCode\&category=All\%20categories\&sortBy=Installs}
+{Visual Studio Marketplace most popular extensions} as of 7 January 2022}, demonstrating the relevance of providing
+developers a structured basis to develop in a collaborated manner.
+
+Traditional collaborating tools such as Live Share for Visual Studio Code or Teletype for Atom in essence enable
+collaboration by representing the code files that are being worked on as large strings which are concurrently
+manipulated by different replica's, ie\. the machines on which remote developers work.
+This technique can be considered a simplified approach to enabling the replication of the code, as code usually takes
+a strict structural form, which is then completely overlooked by this technique.
+This brings with it different limitations.
+
+\begin{itemize}
+    \item \textbf{Easy to break the code structure} \\
+    When developers write code alone, they tend to make syntactic mistakes.
+    Even though these mistakes are pointed at by the parser, it is not always an easy task to locate the culprit of
+    this case, for example identifying the location at which a matching bracket is missing to correct the program
+    both syntactically and semantically can get complex for code with lots of nested statements.
+    When it is up to two developers to locate the missing matching bracket, parallel development only complicates
+    matters to identify who is to blame and what part of the code to repair for such breaking changes.
+
+    \item \textbf{Need for strong synchronization} \\
+    Traditional collaboration tools enable collaboration by assigning one developer as the host and inviting
+    others to join their development sessions\footnote{
+        Live Share calls these \emph{session}s, Teletype calls these \emph{portal}s.}
+    which requires the host to stay live at all times.
+    The host as such could be considered a single point of failure, which may break the application availability upon
+    the occurrence of a network partition.
+
+    \item \textbf{Weak merge strategy:}
+    In case the collaboration tool opts for availability by enabling the developer to continue on a local copy of
+    the code during a network partition, upon a connection reestablishment the tool is uninformed about the code and its
+    structure on how it should be merged.
+
+    It could be considered an easy task to merge little edits, say the addition of a single character.
+    Concurrent changes to the overall program structure, however, such as statement moves and updates can significantly
+    add to the complexity of such merges.
+    Figure~\ref{fig:scheme-code-evolving} illustrates this with a concrete example.
+    The initial code contains two statements, an \mintinline{scheme}{eat} and a \mintinline{scheme}{touch} statement.
+    For a given network partition, the local edit of changing the \mintinline{scheme}{"apple"} string into the string
+    \mintinline{scheme}{"banana"} should take place once the connection is reestablished.
+    In case a different remote replica changes the order of the statements, should result in both the update and the
+    move operation having taken place.
+    This complexity of merging both operations increases with the size of the code that is being worked on such as
+    tracking the moved statement across more than neighbouring lines or even in different scopes.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{images/out/evolving_code}
+    \caption{
+        A sample Scheme program that evolves through different machines that temporarily break synchronization.
+        This example shows that reasoning over the code structure is required to successfully merge the two separate
+        operations.
+    }
+    \label{fig:scheme-code-evolving}
+\end{figure}
+
+\begin{sloppypar}
+    To overcome these limitations this work proposes a novel strategy to provide developers with an editor that models
+    the takes underlying AST that is being edited concurrently through modelling the tree as a conflict-free replicated
+    tree.
+    The source code for the project is available on
+    \href{https://github.com/aaronmunsters/AST\_CRDT}{https://github.com/aaronmunsters/AST\_CRDT} while the working
+    prototype is live available on
+    \href{https://aaronmunsters.github.io/AST\_CRDT/}{https://aaronmunsters.github.io/AST\_CRDT/}.
+    This report is structured to motivate the new approach in
+    Section~\ref{sec:replicated-conflict-free-abstract-syntax-tree} while covering technical challenges in
+    Sections~\ref{sec:implementing-the-abstract-syntax-tree} and~\ref{sec:computing-ast-changes}.
+    As a small demonstration application is included with this report, as it is discussed in
+    Section~\ref{sec:integrated-demo}.
+    Section~\ref{sec:tests} discusses the set of tests included in the codebase to assert the correct behaviour of the
+    code, while Section~\ref{sec:future-work} covers limitations known to the work and proposes improvements in the form
+    of future work.
+\end{sloppypar}

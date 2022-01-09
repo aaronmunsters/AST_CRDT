@@ -1,0 +1,61 @@
+\section{Implementing the Abstract Syntax Tree}\label{sec:implementing-the-abstract-syntax-tree}
+
+The implementation of the conflict-free replicated abstract syntax tree can be viewed from two perspectives.
+On one hand, the implementation responsible for respecting the requirements of a CRDT, discussed in
+Section~\ref{subsec:implementing-the-crdt}, and on the other hand the implementation for the underlying locally kept
+data structure, discussed in Section~\ref{subsec:implementing-the-local-ast}.
+
+\subsection{Implementing the CRDT}\label{subsec:implementing-the-crdt}
+
+The mentioned motivation in Section~\ref{sec:replicated-conflict-free-abstract-syntax-tree} forms the basis of the
+\mintinline{scala}{ConflicFreeReplicatedAst} class.
+Objects for this class are created with an object that implements the \mintinline{scala}{Transmitter} trait.
+This trait guarantees the definition of a \mintinline{scala}{publish} method to publish new edit scripts and a
+\mintinline{scala}{subscribe} method to install a callback to receive incoming edit scripts.
+
+The \mintinline{scala}{ConflicFreeReplicatedAst} class implements the CRDT methods \mintinline{scala}{update} for
+local replica changes, \mintinline{scala}{query} to query for the local data structure and \mintinline{scala}{merge}
+for incoming operations.
+Objects for this class locally keep a variable \mintinline{scala}{operations} which contains the aggregation of all
+locally produced and received \emph{edit script}s that can be ordered by their timestamp.
+
+Upon receiving local updates through \mintinline{scala}{update}, it invokes the transmitter's
+\mintinline{scala}{publish} method to propagate the changes to other replica's.
+The \mintinline{scala}{query} method sorts the operations and folds them starting an empty AST,
+happening in a non-deterministic manner to guarantee the same set of operations across replica's results in the same
+AST.
+The \mintinline{scala}{merge} method adds the incoming operations to the locally stored operations.
+
+\subsection{Implementing the local AST}\label{subsec:implementing-the-local-ast}
+
+The abstract syntax tree itself is implemented by the \mintinline{scala}{HeadedAST} case class, which consists of an
+optional root (in case the AST is empty) and a mapping from identities to nodes, called its \emph{header}.
+This class does not assume a type of identity used to identify nodes, as it is implemented through generics.
+This case class, as most of the codebase, is implemented in a functional style.
+The choice for doing so, as it was the first class on which work began, was to ease the feature to perform the rollback
+as through functional code the application of edits in the same order across all replica's would always yield the
+same outcome AST.
+Additionally, the code is easier to test.
+
+The internal structure of the AST, consisting of a mapping and an optional root, would allow for easy serialization of
+the AST by serializing the root and the nodes.
+The nodes of the AST each implementing \mintinline{scala}{SchemeNode} trait, covering generic syntax node operations
+such as querying for the parent, the depth of the tree and such.
+A more intuitive implementation for the AST would be to implement the tree structure as a root with pointers to other
+nodes (that in their turn point to other nodes) rather than keeping a mapping in the AST from identity to the nodes.
+Having opted use of this indirection through the AST \emph{header} makes it trivial to serialize AST nodes, as they
+thus never consist of pointers to values in memory (which is critical in a distributed setting since replica's
+classically do not share a memory-space).
+Serialization is left to the \href{https://github.com/suzaku-io/boopickle}{BooPickle library} such that it does
+not add to the complexity of the code, which is developed with high performance in mind~\cite{10.1145/2509136.2509547}.
+
+The nodes of the Scheme-like language that has been implemented are limited to \emph{number}s, \emph{string}s,
+\emph{identifier}s and \emph{expression}s.
+This set of nodes is relatively small but is sufficiently large to provide a prototype that covers all source-code edit
+operations for a language supporting primitive values and nodes with descendants, showing support for arbitrary nested
+setups.
+
+Turning a textual representation of a program into its \mintinline{scala}{HeadedAST} representation is made possible
+by the \mintinline{scala}{Parser} object, which requires an identity generator function to assign each node with a new
+identity, which parses the programs using the grammar developed in combination with the
+\href{https://com-lihaoyi.github.io/fastparse/}{FastParse library}.

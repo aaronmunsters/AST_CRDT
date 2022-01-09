@@ -1,0 +1,90 @@
+@ARTICLE{9563274,
+
+    author={Kleppmann, Martin and Mulligan, Dominic P. and Gomes, Victor B. F. and Beresford, Alastair R.},
+
+    journal={IEEE Transactions on Parallel and Distributed Systems},
+
+    title={A Highly-Available Move Operation for Replicated Trees},
+
+    year={2022},
+
+    volume={33},
+
+    number={7},
+
+    pages={1711-1724},
+
+    doi={10.1109/TPDS.2021.3118603}}
+
+@inproceedings{10.1145/2509136.2509547,
+    author = {Miller, Heather and Haller, Philipp and Burmako, Eugene and Odersky, Martin},
+    title = {Instant Pickles: Generating Object-Oriented Pickler Combinators for Fast and Extensible Serialization},
+    year = {2013},
+    isbn = {9781450323741},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/2509136.2509547},
+    doi = {10.1145/2509136.2509547},
+    abstract = {As more applications migrate to the cloud, and as "big data" edges into even more production environments, the performance and simplicity of exchanging data between compute nodes/devices is increasing in importance. An issue central to distributed programming, yet often under-considered, is serialization or pickling, i.e., persisting runtime objects by converting them into a binary or text representation. Pickler combinators are a popular approach from functional programming; their composability alleviates some of the tedium of writing pickling code by hand, but they don't translate well to object-oriented programming due to qualities like open class hierarchies and subtyping polymorphism. Furthermore, both functional pickler combinators and popular, Java-based serialization frameworks tend to be tied to a specific pickle format, leaving programmers with no choice of how their data is persisted. In this paper, we present object-oriented pickler combinators and a framework for generating them at compile-time, called scala/pickling, designed to be the default serialization mechanism of the Scala programming language. The static generation of OO picklers enables significant performance improvements, outperforming Java and Kryo in most of our benchmarks. In addition to high performance and the need for little to no boilerplate, our framework is extensible: using the type class pattern, users can provide both (1) custom, easily interchangeable pickle formats and (2) custom picklers, to override the default behavior of the pickling framework. In benchmarks, we compare scala/pickling with other popular industrial frameworks, and present results on time, memory usage, and size when pickling/unpickling a number of data types used in real-world, large-scale distributed applications and frameworks.},
+    booktitle = {Proceedings of the 2013 ACM SIGPLAN International Conference on Object Oriented Programming Systems Languages \&amp; Applications},
+    pages = {183–202},
+    numpages = {20},
+    keywords = {scala, serialization, pickling, distributed programming, meta-programming},
+    location = {Indianapolis, Indiana, USA},
+    series = {OOPSLA '13}
+}
+
+@inproceedings{10.1145/2642937.2642982,
+    author = {Falleri, Jean-R\'{e}my and Morandat, Flor\'{e}al and Blanc, Xavier and Martinez, Matias and Monperrus, Martin},
+    title = {Fine-Grained and Accurate Source Code Differencing},
+    year = {2014},
+    isbn = {9781450330138},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/2642937.2642982},
+    doi = {10.1145/2642937.2642982},
+    abstract = {At the heart of software evolution is a sequence of edit actions, called an edit script, made to a source code file. Since software systems are stored version by version, the edit script has to be computed from these versions, which is known as a complex task. Existing approaches usually compute edit scripts at the text granularity with only add line and delete line actions. However, inferring syntactic changes from such an edit script is hard. Since moving code is a frequent action performed when editing code, it should also be taken into account. In this paper, we tackle these issues by introducing an algorithm computing edit scripts at the abstract syntax tree granularity including move actions. Our objective is to compute edit scripts that are short and close to the original developer intent. Our algorithm is implemented in a freely-available and extensible tool that has been intensively validated.},
+    booktitle = {Proceedings of the 29th ACM/IEEE International Conference on Automated Software Engineering},
+    pages = {313–324},
+    numpages = {12},
+    keywords = {software evolution, ast, tree differencing, program comprehension},
+    location = {Vasteras, Sweden},
+    series = {ASE '14}
+}
+
+@article{10.1145/235968.233366,
+    author = {Chawathe, Sudarshan S. and Rajaraman, Anand and Garcia-Molina, Hector and Widom, Jennifer},
+    title = {Change Detection in Hierarchically Structured Information},
+    year = {1996},
+    issue_date = {June 1996},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    volume = {25},
+    number = {2},
+    issn = {0163-5808},
+    url = {https://doi.org/10.1145/235968.233366},
+    doi = {10.1145/235968.233366},
+    abstract = {Detecting and representing changes to data is important for active databases, data warehousing, view maintenance, and version and configuration management. Most previous work in change management has dealt with flat-file and relational data; we focus on hierarchically structured data. Since in many cases changes must be computed from old and new versions of the data, we define the hierarchical change detection problem as the problem of finding a "minimum-cost edit script" that transforms one data tree to another, and we present efficient algorithms for computing such an edit script. Our algorithms make use of some key domain characteristics to achieve substantially better performance than previous, general-purpose algorithms. We study the performance of our algorithms both analytically and empirically, and we describe the application of our techniques to hierarchically structured documents.},
+    journal = {SIGMOD Rec.},
+    month = {jun},
+    pages = {493–504},
+    numpages = {12}
+}
+
+@InProceedings{10.1007/978-3-642-24550-3_29,
+    author="Shapiro, Marc
+and Pregui{\c{c}}a, Nuno
+and Baquero, Carlos
+and Zawirski, Marek",
+    editor="D{\'e}fago, Xavier
+and Petit, Franck
+and Villain, Vincent",
+    title="Conflict-Free Replicated Data Types",
+    booktitle="Stabilization, Safety, and Security of Distributed Systems",
+    year="2011",
+    publisher="Springer Berlin Heidelberg",
+    address="Berlin, Heidelberg",
+    pages="386--400",
+    abstract="Replicating data under Eventual Consistency (EC) allows any replica to accept updates without remote synchronisation. This ensures performance and scalability in large-scale distributed systems (e.g., clouds). However, published EC approaches are ad-hoc and error-prone. Under a formal Strong Eventual Consistency (SEC) model, we study sufficient conditions for convergence. A data type that satisfies these conditions is called a Conflict-free Replicated Data Type (CRDT). Replicas of any CRDT are guaranteed to converge in a self-stabilising manner, despite any number of failures. This paper formalises two popular approaches (state- and operation-based) and their relevant sufficient conditions. We study a number of useful CRDTs, such as sets with clean semantics, supporting both add and remove operations, and consider in depth the more complex Graph data type. CRDT types can be composed to develop large-scale distributed applications, and have interesting theoretical properties.",
+    isbn="978-3-642-24550-3"
+}

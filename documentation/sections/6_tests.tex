@@ -1,0 +1,39 @@
+\section{Tests}\label{sec:tests}
+
+\input{test-report/test-report.tex}
+For the given test suite, the IntelliJ Test Coverage Tool reports 100\% code coverage\footnote{
+    Note that to view this code coverage report, the IntelliJ feature to export code coverage to an HTML format was used,
+    which shows that the sole methods that are not covered are the generated macro's originating from the pickling library
+    to serialize the operations.} for the scala code, except the entry point for the JavaScript environment as this consist
+of 40 lines of JavaScript bindings.
+This broad testing suite paired with the high amount of code coverage aims to demonstrate the effort in verifying the
+correctness of the codebase.
+
+An integration test that covers the case in which different operations reach replica's in different orders is present in
+the \mintinline{scala}{"Test the replicated ASTs"} test that is present in the
+\mintinline{scala}{ConflictFreeReplicatedIntAstTest} class.
+A snippet of this test is reported in Listing~\ref{code:tests-asserting-commute}.
+This listing shows how the iteration through the powerset of a set of operations applied to a newly constructed AST,
+both in ordered and randomly shuffled order, results in isomorphic outcome ASTs.
+
+\begin{listing}
+    \begin{minted}[fontsize=\footnotesize]{scala}
+for (subset <- operations.subsets()) {
+    val ordered = new ConflictFreeReplicatedAst()
+    val shuffled = new ConflictFreeReplicatedAst()
+
+    val operations = subset.toSeq
+
+    ordered merge operations
+    shuffled merge rnd.shuffle(operations)
+    assert(ordered.query isomorphic shuffled.query)
+}
+    \end{minted}
+    \caption{
+        A snippet of the tests (with technical details left out) that takes a set of operations, iterates through the
+        powerset of these operations (thus taking into account operations that are temporarily out of order) and asserts
+        that the application of both the ordered and the shuffled sequence of operations to an empty AST results in
+        isomorphic ASTs.
+    }
+    \label{code:tests-asserting-commute}
+\end{listing}

@@ -1,0 +1,126 @@
+\section{A Replicated Conflict Free Abstract Syntax Tree}\label{sec:replicated-conflict-free-abstract-syntax-tree}
+
+This work proposes a new approach to collaborative code editing through modelling the underlying abstract syntax
+tree (AST) as a conflict-free replicated datatype~\cite{10.1007/978-3-642-24550-3_29} (CRDT). % TODO: find the first use of AST and CRDT and add the abbrevs
+The prototype accompanied by this report is an implementation for the Scheme language.
+
+Figure~\ref{fig:platform-architecture} provides an overview of the flow that a single local edit makes through the
+different stages, each associated with a concrete component, before it enables all replica's to converge to an identical
+AST.
+The approach consists of the code editor continuously monitoring (in an event-based manner) for changes taking place on
+the local replica.
+For incoming changes in the editor, the altered source code is parsed and the newly constructed AST is mapped onto the
+previous AST, after which the delta for both ASTs can be computed in the form of an edit script, meaning a script that
+contains the changes to go from the source AST to the destination AST.
+This edit script containing the changes is then propagated to all other replica's accompanied by a logical timestamp,
+forming the basis of the AST as an operation-based CRDT.
+For the replica's, each incoming edit script is added to its local list of operations, which can be reordered due to the
+inclusion of the logical timestamp, allowing for an ordering of the events.
+The ordered list of edits allows the local replica to compute the final resulting AST, which is then reflected in
+the code editor.
+
+The project is developed in the Scala language, built using structures and libraries that are ScalaJS compliant.
+This comes with the benefits of the scala type checker asserting type safety while remaining portable in terms of
+the underlying execution engine, which can be either the JVM or a JavaScript engine.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% Alternative strategies %%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{tcolorbox}[title=Approach motivation]
+    \label{example:racecondition}
+    Initial work was put into remaining language agnostic, where the AST changes could be detected by an
+    incremental parser such as \href{https://www.npmjs.com/package/escaya}{Escaya} for JavaScript or
+    \href{https://ts-morph.com}{ts-morph} for TypeScript such that the reported changes would be propagated to other
+    replica's.
+
+    This strategy was rejected as these incremental parsers are built with a single local in-memory AST in mind, where
+    the increments are reported in terms of pointers to AST nodes that have been affected, which would require in-depth
+    adjustments to providing each node with unique identifiers and changing the incremental parsers to report
+    serializable changes that can be shared across the network to devices with isolated memory.
+
+    A different strategy thus was opted for to implement a small parser for a Scheme-like language,
+    allowing to remain in full control of the internal representations, opting for a serializable-first design for the
+    AST and the detected changes.
+\end{tcolorbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% An overview of the stages that flow through different components %%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{images/out/platform_architecture}
+    \caption{
+        An overview of the stages that flow through different components working together to make up a distributed
+        conflict-free replicated abstract syntax tree. Changes detected by the \mintinline{javascript}{Monaco Editor}
+        trigger the construction of a new \mintinline{scala}{HeadedAST}, which is then mapped onto the previous
+        \mintinline{scala}{HeadedAST} through the \mintinline{scala}{GumTreeAlgorithm} allowing to compute the changes
+        that took place as a \mintinline{scala}{MinimumEditScript}.
+        These AST changes are serialized and propagated over the wire as \mintinline{scala}{ReplicatedOperation}s, as
+        the CRDT is an operation-based CRDT.
+        The incoming operations allow each replica to roll back the local AST to then reapply all known changes in order.
+        The final computed AST is displayed by the \mintinline{javascript}{Monaco Editor} which then reflects the
+        converging AST to the developer.
+    }
+    \label{fig:platform-architecture}
+\end{figure*}
+
+The design of the AST CRDT is highly inspired by the design of the paper "A highly-available move operation for
+replicated trees" by~\citet{9563274}.
+Their work discusses the design of a tree CRDT, motivating why move operations become complex for replicated trees.
+We summarize the discussion on the difficulties:
+
+\begin{itemize}
+    \item \textbf{Concurrently moving the same node} \\
+    Say concurrently a move operation takes place for the same node, resulting in the node \emph{green} becoming the
+    child of its sibling \emph{blue} on one replica and becoming the child of its sibling \emph{orange} on another
+    replica as Figure~\ref{fig:tree-move-same} presents.
+    Once these operations merge, different operations are possible, prioritize a single outcome
+    (Figure~\ref{fig:tree-move-same} \emph{(a)} and \emph{(b)}), or duplicate the \emph{green} node so that both
+    \emph{blue} and \emph{orange} can have an instance of \emph{green} as their child
+    (Figure~\ref{fig:tree-move-same} \emph{(c)}).
+    Another option could be to have both nodes \emph{blue} and \emph{orange} have as their child node \emph{green},
+    however this would break the tree-like structure (Figure~\ref{fig:tree-move-same} \emph{(d)}).
+
+    \item \textbf{Introducing cycles} \\
+    While move operations may uphold the guarantees of the tree remaining as an acyclic structure on individual
+    replica's, their combination may introduce cycles.
+    Figure~\ref{fig:tree-move-parent} shows the distinct outcomes possible.
+    The figure illustrates the possible choices when two sibling nodes are concurrently made a parent of one another.
+    It allows for either move operation to remain (Figure~\ref{fig:tree-move-parent} \emph{(a)} and \emph{(b)}), a
+    duplicate instance of both nodes to enable both move operations (Figure~\ref{fig:tree-move-parent} \emph{(c)}) or
+    to introduce a cycle to enable both operations without duplication, but this would break the tree requirement
+    (Figure~\ref{fig:tree-move-parent} \emph{(d)}).
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/out/tree_move_same}
+    \caption{
+        A case in which concurrent move operations take place for a node to become the child of either one of its
+        siblings, including the possible outcomes.
+        The shown outcomes illustrate there is either an operation-discarding choice, a duplicating choice or a
+        tree-structure breaking choice that must be made.
+        Inspired by the illustrations designed by~\citet{9563274}.
+    }
+    \label{fig:tree-move-same}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/out/tree_move_parent}
+    \caption{
+        A case in which concurrent move operations take place for two nodes to become each others descendant, including
+        the possible outcomes.
+        The shown outcomes illustrate there is either an operation-discarding choice, a duplicating choice or a
+        tree-structure breaking choice that must be made.
+        Inspired by the illustrations designed by~\citet{9563274}
+    }
+    \label{fig:tree-move-parent}
+\end{figure}
+
+Their work then proposes to accompany each operation with a timestamp such that incoming operations that are out of
+order, allowing the CRDT to determine the point at which these should have been applied.
+It then performs a rollback using the \emph{undo\_op} operation up until the point where the incoming operation can be
+applied after which all latter operations can be replayed using the \emph{redo\_op} operation.
+These are the conditions by which the authors prove convergence in a strong eventual consistent setting.

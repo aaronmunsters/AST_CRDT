@@ -1,0 +1,49 @@
+\section{Computing AST Changes}\label{sec:computing-ast-changes}
+
+Before propagating AST changes over the network, they need to be determined locally.
+Computing source-code changes can be performed by incremental compilers, they could be derived from projectional
+editors\footnote{These are editors that let the user develop their programs through manipulating an AST directly
+rather than having the programmer type the program in an open space for characters.
+The benefit of these editors is that the programmer can make no syntactic mistakes, the drawback is that the amount of
+different building blocks to construct a program can become complex for languages with a rich syntax.
+An example projectional editor that is actively maintained for the TypeScript language is
+\href{https://github.com/tehwalris/forest}{Forest}.
+}, or they can be computed by AST tree differencing algorithms\footnote{For the reader, a curated list of papers and
+tools is available on the page \href{https://www.monperrus.net/martin/tree-differencing}{"Pointers on abstract syntax tree
+differencing algorithms and tools"}.}.
+
+Whereas incremental compilers and projectional editors come with the disadvantage that they are specialized per
+language, AST tree differencing algorithms exist with \emph{language agnostic} specifications.
+This project has adopted the GumTree algorithm~\cite{10.1145/2642937.2642982}, a language-agnostic algorithm to compute
+the changes between two ASTs.
+
+Computing changes in trees produces an \emph{edit script}, which is an ordered set of edit operations that when applied to
+the source tree results in an output of the destination tree.
+The operations that suffice for tree transformations are captured by the following operations~\cite{10.1145/235968.233366}:
+\begin{itemize}
+    \item \textit{update(n, v)} to update the content of node \textit{n} with the value of \textit{v}.
+
+    \item \textit{add(t, p, i, l, v)} to add the node \textit{t} with the label \textit{l} and the value \textit{v} to
+    the parent \textit{p} at index \textit{i}.
+
+    \item \textit{delete(t)} to delete node \textit{t}.
+
+    \item \textit{move(t, p, i)} to move node \textit{t} in the tree to be a child of \textit{p} at index \textit{i}.
+\end{itemize}
+When spoken of \emph{minimum edit script}, the edit script is the smallest possible ordering of edit operations that is
+still a valid edit script.
+In the context of the CRDT AST, the need for remaining as close as possible to a minimum edit script is desirable since
+it can affect the network load.
+
+The GumTree algorithm consists of a top-down phase and bottom-up phase to compute a set of mappings between both ASTs,
+while it leaves the algorithm to determine an edit script open to the implementor.
+The GumTree implementation for this work\footnote{
+    The authors of GumTree provided their implementation as a publicly available
+    \href{https://github.com/GumTreeDiff/gumtree}{GitHub project}, however, it is implemented using the Java language and is
+    not developed with compilation for a web browser in mind.}
+to compute the edit script is based on the work of~\citet{10.1145/235968.233366}.
+
+The class \mintinline{scala}{MinimumEditScript} implements the \emph{EditScript} algorithm~\cite{10.1145/235968.233366},
+while the class \mintinline{scala}{GumTreeAlgorithm} implements the \emph{Gumtree}
+algorithm~\cite{10.1145/2642937.2642982}.
+These implementations remain true to the specification of the author.
