@@ -32,8 +32,10 @@ This still allows for any desired underlying network structure, but a prototype 
 
 Since compilation to JavaScript is supported through ScalaJS, you can try this project in your browser.
 
-Clone the repo, open sbt and run `fastLinkJS` (to compile to JavaScript), after which you can open `index.html` to start
-the project.
+<h3>&gt;&gt;&gt; <a href="https://aaronmunsters.github.io/AST_CRDT">CLICK TO GO TO LIVE DEMO</a> &lt;&lt;&lt;</h3>
+
+If you want to run the demo locally, clone the repo, open sbt and run `fastLinkJS` (to compile to JavaScript), after
+which you can open `index.html` to start the demo.
 
 ![Demo Gif](docs/ast_crdt_demo.gif)
 
