@@ -116,7 +116,7 @@ case class GumTreeAlgorithm[Identity](T1_Header: HeadedAST[Identity], T2_Header:
   def opt(T1: Identity,
           T2: Identity):
   Map[Identity, Identity] =
-    Map(T1 -> T2) // TODO: replace by a serious implementation, eg. RTED
+    Map(T1 -> T2)
 
   def bottomUp(T1_id: Identity,
                T2_id: Identity,

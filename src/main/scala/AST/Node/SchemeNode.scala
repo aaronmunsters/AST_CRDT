@@ -21,7 +21,7 @@ sealed trait SchemeNode[Identity] {
 
   def sameValue(n: SchemeNode[Identity]): Boolean
 
-  def withParent(identity: Identity): SchemeNode[Identity] // TODO: add support for F-bounded polymorphism
+  def withParent(identity: Identity): SchemeNode[Identity]
 
   def withoutChildren: SchemeNode[Identity]
 

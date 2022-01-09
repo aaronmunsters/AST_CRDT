@@ -25,5 +25,3 @@ class ConflictFreeReplicatedAst[Identity, EditIdentity](var start: HeadedAST[Ide
   def merge(newOperations: Seq[ReplicatedOperation[Identity, EditIdentity]]): Unit =
     operations = (operations ++ newOperations).sorted
 }
-
-// TODO: potential improvement could be to incrementally sort and keep a sorted cache
