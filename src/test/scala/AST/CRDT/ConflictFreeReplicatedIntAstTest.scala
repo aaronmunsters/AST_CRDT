@@ -97,7 +97,6 @@ class ConflictFreeReplicatedIntAstTest extends AnyWordSpecLike with Matchers {
     }
   }
 
-
   "Test the replicated ASTs paper case" in {
     val network: mutable.Set[MockedDelayableTransmitter] = mutable.Set.empty
     val CFR_IA_1___Transmitter = new MockedDelayableTransmitter(network)
@@ -137,6 +136,84 @@ class ConflictFreeReplicatedIntAstTest extends AnyWordSpecLike with Matchers {
 
     assert_equality()
     assert(CFR_IA_1___.query.toAstString() == "(begin (touch \"nose\") (eat \"banana\"))")
+    assert(CFR_IA_1___.query.toAstString() == CFR_IA____2.query.toAstString())
+  }
+
+  "Test no cycles are introduced in the resulting AST" in {
+    val network: mutable.Set[MockedDelayableTransmitter] = mutable.Set.empty
+    val CFR_IA_1___Transmitter = new MockedDelayableTransmitter(network)
+    val CFR_IA____2Transmitter = new MockedDelayableTransmitter(network)
+    val CFR_IA_1___ = ConflictFreeReplicatedIntAst(RId(1), CFR_IA_1___Transmitter)
+    val CFR_IA____2 = ConflictFreeReplicatedIntAst(RId(2), CFR_IA____2Transmitter)
+
+    def assert_equality(): Unit = {
+      assert(CFR_IA_1___.query isomorphic CFR_IA____2.query)
+      assert(CFR_IA_1___.operations == CFR_IA____2.operations)
+    }
+
+    CFR_IA_1___.update(0, "((b) (c))")
+
+    assert_equality()
+    assert(CFR_IA_1___.query.toAstString() == "((b) (c))")
+    assert(CFR_IA_1___.query.toAstString() == CFR_IA____2.query.toAstString())
+
+    CFR_IA_1___Transmitter.buffer() // PAUSE THE NETWORK
+    CFR_IA____2Transmitter.buffer() // PAUSE THE NETWORK
+
+    // replica 1: make c child of b
+    CFR_IA_1___.update(0, "((b (c)))")
+    // replica 2: make b child of c
+    CFR_IA____2.update(0, "((c (b)))")
+
+    assert(CFR_IA_1___.query.toAstString() == "((b (c)))")
+    assert(CFR_IA____2.query.toAstString() == "((c (b)))")
+
+    CFR_IA_1___Transmitter.active() // REACTIVATE THE NETWORK
+    CFR_IA____2Transmitter.active() // REACTIVATE THE NETWORK
+
+    println(CFR_IA_1___.operations)
+
+    {
+      import AST.Edit.AstEdit.Add
+      import AST.Edit.AstEdit.Move
+      import AST.Node.SchemeNode.SchemeExpression
+      import AST.Node.SchemeNode.SchemeIdentifier
+      import AST.CRDT.ReplicatedIntOp.NId
+      import AST.CRDT.ReplicatedIntOp.LClock
+
+      val operations = List(
+        /* CFR_IA_1___ adds "((b) (c))" */
+        ReplicatedIntOp(
+          (LClock(1), RId(1)),
+          Add(
+            SchemeExpression(1, 5, (RId(1), NId(2)), Some((RId(0), NId(0))), List()),
+            Some((RId(0), NId(0))), 0)),
+        ReplicatedIntOp(
+          (LClock(2), RId(1)),
+          Add(SchemeExpression(5, 8, (RId(1), NId(4)), Some((RId(0), NId(0))), List()), Some((RId(0), NId(0))), 1)),
+        ReplicatedIntOp(
+          (LClock(3), RId(1)),
+          Add(SchemeIdentifier(2, 3, (RId(1), NId(1)), Some((RId(1), NId(2))), "b"), Some((RId(1), NId(2))), 0)),
+        ReplicatedIntOp(
+          (LClock(4), RId(1)),
+          Add(SchemeIdentifier(6, 7, (RId(1), NId(3)), Some((RId(1), NId(4))), "c"), Some((RId(1), NId(4))), 0)),
+
+        /* CFR_IA_1___ makes `c` a child of `b` */
+        ReplicatedIntOp(
+          (LClock(5), RId(1)),
+          Move((RId(1), NId(4)), (RId(1), NId(2)), 1)),
+
+        /* CFR_IA____2 makes `c` a child of `b` */
+        ReplicatedIntOp(
+          (LClock(5), RId(2)),
+          Move((RId(1), NId(2)), (RId(1), NId(4)), 1)))
+
+      assert(CFR_IA_1___.operations == operations)
+    }
+
+    assert_equality()
+    println(CFR_IA_1___.query.toAstString())
+    assert(CFR_IA_1___.query.toAstString() == "((b (c)))")
     assert(CFR_IA_1___.query.toAstString() == CFR_IA____2.query.toAstString())
   }
 
